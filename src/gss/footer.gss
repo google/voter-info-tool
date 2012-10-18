@@ -1,0 +1,82 @@
+/**
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Style rules for footer component.
+ *
+ * @author jmwaura@google.com (Jesse Mwaura)
+ */
+
+.footer {
+  background-color: DARK_BACKGROUND_COLOR;
+  border-top: STANDARD_BORDER;
+  @mixin box_shadow(TOP_INSET_SHADOW);
+  overflow: hidden;
+}
+
+.footer .leo-info {
+  color: GREY_TEXT_COLOR;
+  margin: 4px 8px;
+}
+
+.footer .leo-info-title {
+  display: block;
+  font-weight: bold;
+}
+
+.footer .leo-info-details {
+  display: block;
+  list-style-type: none;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.footer .leo-info-details li {
+  display:block;
+}
+
+.footer .disclaimer {
+  background-color: VERY_DARK_BACKGROUND;
+  color: TEXT_ON_VERY_DARK_BACKGROUND;
+  font-size: SECONDARY_TEXT_SIZE;
+  padding: 4px;
+  text-align: center;
+}
+
+@media screen and (min-width:600px) {
+  .footer .leo-info-details li {
+    border-right: STANDARD_BORDER;
+    float: left;
+    padding: 0 mult(SECONDARY_TEXT_SIZE, 0.5);
+  }
+
+  .footer .leo-info-details li:first-child {
+    padding-left: 0;
+  }
+
+  .footer .leo-info-details li:last-child {
+    border-right: 0;
+    padding-right: 0;
+  }
+}
+
+@media screen and (min-width:800px) {
+  .footer .leo-info {
+    padding: 8px 8px;
+  }
+}
+

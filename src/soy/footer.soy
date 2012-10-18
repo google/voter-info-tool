@@ -1,0 +1,80 @@
+/**
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Template for footer component.
+ *
+ * @author jmwaura@google.com (Jesse Mwaura)
+ */
+
+{namespace vit.templates}
+
+/**
+ * Draw footer component.
+ */
+{template .footer autoescape="contextual"}
+  <div class="{css footer}">
+    <div class="{css leo-info-container}"></div>
+    <div class="{css disclaimer}">
+      {msg desc="Disclaimer to appear at the bottom of the voter information tool."}
+        For the most complete and up to date information, consult your local election official.
+      {/msg}
+    </div>
+  </div>
+{/template}
+
+
+/**
+ * Draw local election official information.
+ * @param administrationName Name of the election administration.
+ * @param url URL for the election administration website.
+ * @param address Correspondence address for the election administration.
+ * @param localOfficial Name of local election official.
+ * @param phoneNumber Phone number for the election administration.
+ */
+{template .leo}
+  <div class="{css leo-info}">
+    <span class="{css leo-info-title}">
+      {$administrationName}
+    </span>
+    <ul class="{css leo-info-details} {css secondary-text}">
+      {if $url}
+        <li>
+          <a href="{$url}">
+            {msg desc="Link text for website of election administration."}
+              {$administrationName} Website
+            {/msg}
+          </a>
+        </li>
+      {/if}
+      {if $address}
+        <li>{$address}</li>
+      {/if}
+      {if $localOfficial and $phoneNumber}
+        <li>
+          {msg desc="Message that displays the name of an election official."}
+            Local Official: {$localOfficial}
+          {/msg}
+        </li>
+        <li>
+          {msg desc="Phone number part of a contact information list."}
+            Phone: {$phoneNumber}
+          {/msg}
+        </li>
+      {/if}
+    </ul>
+  </div>
+{/template}

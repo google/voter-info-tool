@@ -1,0 +1,116 @@
+/**
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Template for polling place info component.
+ *
+ * @author jmwaura@google.com (Jesse Mwaura)
+ */
+
+{namespace vit.templates}
+
+/**
+ * Draw polling place info.
+ * @param pollingLocation Polling location information.
+ * @param normalizedInput Normalized form of user address.
+ * @param staticMapUrl URL for static polling location map image.
+ * @param mapUrl URL for link to full map.
+ * @param directionsUrl URL to directions from registration address to polling place.
+ */
+{template .pollingInfo autoescape="contextual"}
+  <div class="{css polling-info}">
+    <div class="{css normalized-address} {css voter-info-section}">
+      <h4>
+        {msg desc="Title for section that shows user address."}
+          Your Official Address:
+        {/msg}
+      </h4>
+      <div class="{css normalized-address-line}">{$normalizedInput.line1}</div>
+        {if $normalizedInput.line2}
+          <div class="{css normalized-address-line}">{$normalizedInput.line2}</div>
+        {/if}
+        {if $normalizedInput.line3}
+          <div class="{css normalized-address-line}">{$normalizedInput.line3}</div>
+        {/if}
+      <div class="{css normalized-address-line}">
+        {if $normalizedInput.city}{$normalizedInput.city},{sp}{/if}
+        {if $normalizedInput.state}{$normalizedInput.state}{sp}{/if}
+        {if $normalizedInput.zip}{$normalizedInput.zip}{/if}
+      </div>
+      <a href="javascript:void(0)" class="{css change-address-link}">
+        {msg desc="Link text for link to change address. Displayed next to the address itself."}
+          change
+        {/msg}
+      </a>
+    </div>
+    // TODO(jmwaura): Re-enable once early vote is implemented.
+    {if 0}
+      <div class="{css early-vote-prompt} {css voter-info-section}">
+        <div class="{css early-vote-prompt-text}">
+          {msg desc="Prompt for user to look up their early vote information"}
+            Want to beat the crowds?
+          {/msg}
+        </div>
+        <a href="#" class="{css early-vote-prompt-link}">
+          {msg desc="Link text for early polling location lookup."}
+            See early polling locations near you
+          {/msg}
+        </a>
+      </div>
+    {/if}
+    {if $pollingLocation}
+      <div class="{css polling-location-section} {css voter-info-section}">
+        <h4>
+          {msg desc="Title for section that contains polling place information"}
+            Your Official Election Day Polling Place:
+          {/msg}
+        </h4>
+        <a href="{$mapUrl}" target="_blank" class="{css polling-location-map}">
+          <img class="{css polling-location-static-map-image}" src="{$staticMapUrl}"/>
+        </a>
+        <div class="{css polling-location-text}">
+          {if $pollingLocation.pollingHours}
+            <div class="{css polling-location-hours}">{$pollingLocation.pollingHours}</div>
+          {/if}
+          {if $pollingLocation.address.locationName}
+            <div class="{css polling-location-name}">{$pollingLocation.address.locationName}</div>
+          {/if}
+          <a href="{$mapUrl}" target="_blank" class="{css polling-location-address}">
+            <div class="{css polling-location-line}">{$pollingLocation.address.line1}</div>
+            {if $pollingLocation.address.line2}
+              <div class="{css polling-location-line}">{$pollingLocation.address.line2}</div>
+            {/if}
+            {if $pollingLocation.address.line3}
+              <div class="{css polling-location-line}">{$pollingLocation.address.line3}</div>
+            {/if}
+            <div class="{css polling-location-line}">
+              {$pollingLocation.address.city},{sp}
+              {$pollingLocation.address.state}{sp}
+              {$pollingLocation.address.zip}
+            </div>
+          </a>
+          {if $pollingLocation.instructions}
+            <div class="{css polling-location-instructions}">{$pollingLocation.instructions}</div>
+          {/if}
+          <div><cite>maps.google.com</cite></div>
+          <a href="{$directionsUrl}" target="_blank" class="{css polling-location-directions}">
+            {msg desc="Link text displayed next to an address"}Get directions{/msg}
+          </a>
+        </div>
+      </div>
+    {/if}
+  </div>
+{/template}

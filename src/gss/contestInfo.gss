@@ -1,0 +1,257 @@
+/**
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Style rules for Contest Information pane.
+ *
+ * @author jmwaura@google.com (Jesse Mwaura)
+ */
+
+.contest-info {
+  margin: 0;
+  overflow: auto;
+}
+
+.contest-header {
+  margin: 8px;
+  overflow: hidden;
+}
+
+.contest-header h3 {
+  display: inline-block;
+}
+
+.contest-order-disclaimer {
+  color: GREY_TEXT_COLOR;
+  display: inline-block;
+  font-size: SECONDARY_TEXT_SIZE;
+  margin: 0 5px;
+}
+
+.no-contest-wrapper {
+  margin: 10px;
+}
+
+.no-contest-message {
+  text-align: center;
+}
+
+.candidate-table {
+  border-collapse: collapse;
+  border-top: STANDARD_BORDER;
+  width: 100%;
+}
+
+.candidate-table td {
+  padding: 0;
+}
+
+.candidate {
+  border-bottom: STANDARD_BORDER;
+}
+
+.candidate a,  .candidate a:link, .candidate a:visited, .candidate a:hover {
+  color: #000;
+}
+
+.candidate-info {
+  display: block;
+  padding: 10px 20px;
+  overflow: hidden;
+}
+
+.candidate-btn {
+  display: block;
+  float: left;
+  height: 16px;
+  line-height: 16px;
+  margin-right: 4px;
+}
+
+.channel-btn {
+  display: block;
+  float: left;
+  height: 16px;
+  width: 16px;
+  margin: 0 4px;
+  opacity: 0.5;
+}
+
+.channel-btn:hover {
+  opacity: 1;
+}
+
+.candidate-contact {
+  background-position: ICONS_CONTACT_BG_POS;
+}
+
+.googleplus {
+  background-position: ICONS_GPLUS_BG_POS;
+}
+
+.youtube {
+  background-position: ICONS_YOUTUBE_BG_POS;
+}
+
+.facebook {
+  background-position: ICONS_FACEBOOK_BG_POS;
+}
+
+.twitter {
+  background-position: ICONS_TWITTER_BG_POS;
+}
+
+.odd-candidate {
+  background-color: DARKISH_BACKGROUND_COLOR;
+}
+
+.candidate-party {
+  font-size: SECONDARY_TEXT_SIZE;
+  color: GREY_TEXT_COLOR;
+  max-width: 300px;
+  text-align: right;
+}
+
+@def TAB_HEIGHT 20px;
+
+.scrolling-tab-bar-viewport {
+  border: none;
+  height: TAB_HEIGHT;
+  margin: 0 ICONS_ARROWR_ACTIVE_WIDTH 0 ICONS_ARROWL_ACTIVE_WIDTH;
+  overflow: hidden;
+  position: relative;
+}
+
+/**
+ * Do not change this class before reading through
+ * js/component/scrollingTabBar.js
+ */
+.goog-tab-bar{
+  border: none;
+  height: TAB_HEIGHT;
+  margin: none;
+  outline: none;
+  position: absolute;
+  @mixin transition(left 300ms);
+  white-space: nowrap;
+}
+
+/**
+ * Do not change this class before reading through
+ * js/component/scrollingTabBar.js
+ */
+.goog-tab {
+  border-right: STANDARD_BORDER;
+  @mixin box_sizing(border-box);
+  display: inline-block;
+  height: TAB_HEIGHT;
+  padding: 0 10px;
+  cursor: default;
+}
+
+.goog-tab-selected {
+  border-bottom: 2px solid VIT_RED;
+  color: VIT_RED;
+}
+
+.scrolling-tab-bar-btn {
+  border: none;
+  height: TAB_HEIGHT;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.scrolling-tab-bar-right-btn {
+  background-position: ICONS_ARROWR_IDLE_BG_POS;
+  border-left: STANDARD_BORDER;
+  float: right;
+  height: ICONS_ARROWR_ACTIVE_HEIGHT;
+  margin: sub(0px, TAB_HEIGHT) 0 0 0;
+  width: ICONS_ARROWR_ACTIVE_WIDTH;
+}
+
+.scrolling-tab-bar-right-btn.enabled {
+  background-position: ICONS_ARROWR_ACTIVE_BG_POS;
+  @mixin box_shadow(-2px 0 5px -3px rgba(0, 0, 0, 0.6));
+}
+
+.scrolling-tab-bar-right-btn.disabled {
+  @mixin box_shadow(none);
+}
+
+.scrolling-tab-bar-left-btn {
+  background-position: ICONS_ARROWL_IDLE_BG_POS;
+  border-right: STANDARD_BORDER;
+  float: left;
+  height: ICONS_ARROWL_ACTIVE_HEIGHT;
+  margin: 0 0;
+  width: ICONS_ARROWL_ACTIVE_WIDTH;
+}
+
+.scrolling-tab-bar-left-btn.enabled {
+  background-position: ICONS_ARROWL_ACTIVE_BG_POS;
+  @mixin box_shadow(2px 0 5px -3px rgba(0, 0, 0, 0.6));
+}
+
+.scrolling-tab-bar-left-btn.disabled {
+  @mixin box_shadow(none);
+}
+
+.contest-tab-content {
+  height: 300px;
+  overflow: auto;
+}
+
+.candidate-card {
+  /* @alternate */ background-color: VERY_DARK_BACKGROUND;
+  /* @alternate */ background-color: VERY_DARK_BACKGROUND_TRANSPARENT;
+  @mixin border_radius(2px);
+  @mixin box_shadow(TOOLTIP_SHADOW);
+  color: TEXT_ON_VERY_DARK_BACKGROUND;
+  min-height: 50px;
+  min-width: 150px;
+  overflow: hidden;
+}
+
+.candidate-card a, .candidate-card a:link, .candidate-card a:hover, .candidate-card a:visited {
+  color: TEXT_ON_VERY_DARK_BACKGROUND;
+}
+
+.candidate-card-name {
+  display: block;
+  font-weight: bold;
+  margin: 5px;
+}
+
+.candidate-card-item {
+  display: block;
+  line-height: ICONS_WWWCANDIDATE_HEIGHT;
+  margin: 2px 8px;
+  overflow: hidden;
+}
+
+.candidate-link-text {
+  float: left;
+}
+
+.candidate-link-icon {
+  background-position: ICONS_WWWCANDIDATE_BG_POS;
+  display: block;
+  float: left;
+  height: ICONS_WWWCANDIDATE_HEIGHT;
+  width: ICONS_WWWCANDIDATE_WIDTH;
+}

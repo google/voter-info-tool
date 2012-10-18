@@ -1,0 +1,76 @@
+/**
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Global mixin definitions.
+ *
+ * @author jmwaura@google.com (Jesse Mwaura)
+ */
+
+/**
+ * Mixin for box-shadow.
+ * @param SHADOW shadow attribute value.
+ */
+@defmixin box_shadow(SHADOW) {
+  -moz-box-shadow: SHADOW;
+  -webkit-box-shadow: SHADOW;
+  box-shadow: SHADOW;
+}
+
+/**
+ * Mixin for box-sizing.
+ * @param BOX_SIZING box-sizing attribute value.
+ */
+@defmixin box_sizing(BOX_SIZING) {
+  -moz-box-sizing: BOX_SIZING;
+  -webkit-box-sizing: BOX_SIZING;
+  box-sizing: BOX_SIZING;
+}
+
+/**
+ * Mixin for border-radius.
+ * @param BORDER_RADIUS border-radius attribute value.
+ */
+@defmixin border_radius(BORDER_RADIUS) {
+  -moz-border-radius: BORDER_RADIUS;
+  -webkit-border-radius: BORDER_RADIUS;
+  border-radius: BORDER_RADIUS;
+}
+
+/**
+ * Mixin for linear-gradient.
+ * @param EDGE Edge at which to start gradient.
+ * @param COLOR_1 First color.
+ * @param COLOR_2 Second color.
+ */
+@defmixin linear_gradient(EDGE, COLOR_1, COLOR_2) {
+  /* @alternate */ background-image: -moz-linear-gradient(EDGE, COLOR_1, COLOR_2);
+  /* @alternate */ background-image: -ms-linear-gradient(EDGE, COLOR_1, COLOR_2);
+  /* @alternate */ background-image: -o-linear-gradient(EDGE, COLOR_1, COLOR_2);
+  /* @alternate */ background-image: -webkit-linear-gradient(EDGE, COLOR_1, COLOR_2);
+  /* @alternate */ background-image: linear-gradient(EDGE, COLOR_1, COLOR_2);
+}
+
+/**
+ * Mixin for transitions.
+ * @param TRANSITION transition attribute value.
+ */
+@defmixin transition(TRANSITION) {
+  -moz-transition: TRANSITION;
+  -o-transition: TRANSITION;
+  -webkit-transition: TRANSITION;
+  transition: TRANSITION;
+}

@@ -1,0 +1,103 @@
+/**
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Style rules for header component.
+ *
+ * @author jmwaura@google.com (Jesse Mwaura)
+ */
+
+@def HEADER_PADDING 4px;
+@def HEADER_SIZE 30px;
+@def LARGE_HEADER_PADDING 8px;
+@def LARGE_HEADER_SIZE 40px;
+
+.header {
+  border-bottom: STANDARD_BORDER;
+  overflow: hidden;
+}
+
+.header-title {
+  overflow: hidden;
+  padding: HEADER_PADDING;
+}
+
+.logo-sprite {
+  background: no-repeat transparent LOGOS_DATAURI;
+}
+
+.header-logo {
+  display: block;
+  float: left;
+  height: HEADER_SIZE;
+  width: HEADER_SIZE;
+  background-position: LOGOS_GOOGLE_POLITICS_30_BG_POS;
+}
+
+.header-text {
+  display: block;
+  font-size: 20px;
+  line-height: HEADER_SIZE;
+  margin-left: add(10px, HEADER_SIZE);
+}
+
+.header-tools {
+  /* TODO(jmwaura): Display this once the implementation is done. */
+  display: none;
+  overflow: hidden;
+}
+
+.header-tool-set {
+  display: block;
+  float: left;
+  overflow: hidden;
+  text-align: center;
+}
+
+.header-tool-button {
+  display: inline-block;
+  height: 16px;
+  margin: 2px 8px;
+  width: 16px;
+}
+
+@media screen and (min-width: 800px) {
+  .header-title {
+    padding: LARGE_HEADER_PADDING;
+  }
+
+  .header-logo {
+    height: LARGE_HEADER_SIZE;
+    width: LARGE_HEADER_SIZE;
+    background-position: LOGOS_GOOGLE_POLITICS_40_BG_POS;
+  }
+
+  .header-text {
+    display: block;
+    font-size: 25px;
+    line-height: LARGE_HEADER_SIZE;
+    margin-left: add(10px, LARGE_HEADER_SIZE);
+  }
+
+  .header-tools {
+    float: right;
+    margin-top: sub(0, add(LARGE_HEADER_SIZE, LARGE_HEADER_PADDING));
+  }
+
+  .header-tool-set {
+    float: none;
+  }
+}

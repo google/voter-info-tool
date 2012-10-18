@@ -1,0 +1,206 @@
+#!/bin/bash
+# Copyright 2012 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Author jmwaura@google.com (Jesse Mwaura)
+
+# Default to environment variables. These environment variables may not be set.
+js_compiler_jar=$VIT_JS_COMPILER_JAR
+soy_compiler_jar=$VIT_SOY_COMPILER_JAR
+gss_compiler_jar=$VIT_GSS_COMPILER_JAR
+closure_lib_dir=$VIT_CLOSURE_LIB_DIR
+soy_lib_dir=$VIT_SOY_LIB_DIR
+analytics_api_key=$VIT_ANALYTICS_API_KEY
+google_api_key=$VIT_GOOGLE_API_KEY
+
+# Do not use advanced optimizations by default
+opt=false
+
+# Safety first. Disallow use of uninitialized variables.
+set -o nounset
+
+# Function to resolve a path and expand relative components.
+function resolve_path {
+  # This needs to happen in a subshell so it does not affect the work directory
+  # of the caller.
+  cd $1
+  echo `pwd`
+}
+
+# Function to get a relative path from $1 to $2.
+function relative_path {
+  from="$(resolve_path $1)"
+  to="$(resolve_path $2)"
+  shared_ancestor="$from"
+  rel=""
+
+  while [[ "${to#$shared_ancestor}" == "${to}" ]]; do
+    # to does not start with shared_ancestor, so maybe shared_ancestor is
+    # up one.
+    shared_ancestor="$(dirname $shared_ancestor)"
+    # Record this in the relative path.
+    rel="../$rel"
+  done
+
+  if [[ "$shared_ancestor" == "/" ]]; then
+    # We hit root, so just use the absolute path.
+    rel=""
+  fi
+
+  echo "${rel%/}${to#${shared_ancestor%/}}"
+}
+
+# Set the project root based on the path to this script.
+readonly PROJECT_ROOT=$(resolve_path $(dirname $0)/../..)
+
+
+# Print usage information.
+function usage {
+  cat <<EOF
+Usage: `basename $0` [options]
+  Options:
+    --js_compiler_jar     Path to jar for closure js compiler.
+                          Overrides \$VIT_JS_COMPILER_JAR
+    --soy_compiler_jar    Path to jar for closure template compiler.
+                          Overrides \$VIT_SOY_COMPILER_JAR
+    --gss_compiler_jar    Path to jar for gss compiler.
+                          Overrides \$VIT_GSS_COMPILER_JAR
+    --closure_lib_dir     Path to directory containing base.js from the closure
+                          library.
+                          Overrides \$VIT_CLOSURE_LIB_DIR
+    --soy_lib_dir         Path to directory containing closure templates base
+                          library.
+                          Overrides \$VIT_SOY_LIB_DIR
+    --analytics_api_key   Api key for google analytics.
+                          Overrides \$VIT_ANALYTICS_API_KEY
+    --google_api_key      Api key for Google APIs.
+                          Overrides \$VIT_GOOGLE_API_KEY
+    --opt                 When set, use advanced optimizations in js compiler
+EOF
+}
+
+function require {
+  if [ -z "$1" ]
+  then
+    echo "$2"
+    usage
+    exit 1
+  fi
+}
+
+function get_hash {
+  full_md5=$(md5<$1 2>/dev/null || md5sum<$1 | cut -f1 -d' ')
+  echo ${full_md5:0:5}
+}
+
+function for_all_files {
+  extension=$1
+  root=$2
+  shift 2
+  find $root -type f -name \*.$extension -print0| xargs -0 "$@"
+}
+
+opts=`getopt -o h -l js_compiler_jar:,soy_compiler_jar:,gss_compiler_jar:,closure_lib_dir:,soy_lib_dir:,analytics_api_key:,maps_api_key:,civic_info_api_key:,opt \
+    -- "$@"`
+
+if [ $? != 0 ]
+then
+  usage
+  exit 1
+fi
+
+# Make sure everything gets appropriately expanded
+opts=`eval echo $opts`
+
+eval set -- $opts
+
+while true; do
+  case "$1" in
+    -h ) usage; exit 0 ;;
+    --js_compiler_jar ) js_compiler_jar=$2; shift 2 ;;
+    --soy_compiler_jar ) soy_compiler_jar=$2; shift 2 ;;
+    --gss_compiler_jar ) gss_compiler_jar=$2; shift 2 ;;
+    --closure_lib_dir ) closure_lib_dir=$2; shift 2 ;;
+    --soy_lib_dir ) soy_lib_dir=$2; shift 2 ;;
+    --analytics_api_key ) analytics_api_key=$2; shift 2 ;;
+    --google_api_key ) google_api_key=$2; shift 2 ;;
+    --opt ) opt=true; shift ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
+
+# Define common directory paths.
+readonly BUILD_ROOT="$PROJECT_ROOT/build"
+readonly SRC_ROOT="$PROJECT_ROOT/src"
+readonly TOOL_SRC_PATH="tools"
+readonly EXTERNS_PATH="externs_js"
+readonly JS_SRC_PATH="js"
+readonly SOY_SRC_PATH="soy"
+readonly GSS_SRC_PATH="gss"
+readonly TOOL_BUILD_PATH="tools"
+readonly JS_BUILD_PATH="js"
+readonly SOY_BUILD_PATH="soy"
+readonly GSS_BUILD_PATH="css"
+
+# Make sure all directories exist
+mkdir -p $BUILD_ROOT/$TOOL_BUILD_PATH
+mkdir -p $BUILD_ROOT/$JS_BUILD_PATH
+mkdir -p $BUILD_ROOT/$SOY_BUILD_PATH
+mkdir -p $BUILD_ROOT/$GSS_BUILD_PATH
+
+require "$soy_compiler_jar" "soy_compiler_jar is required"
+require "$gss_compiler_jar" "gss_compiler_jar is required"
+#require "$soy_lib_dir" "soy_lib_dir is required"
+
+# Build HTML generator.
+javac -d $BUILD_ROOT/$TOOL_BUILD_PATH -classpath $soy_compiler_jar $SRC_ROOT/$TOOL_SRC_PATH/CompileSoy.java
+
+# Generate CSS
+echo "Generating CSS from GSS files..."
+java -jar $gss_compiler_jar $SRC_ROOT/$GSS_SRC_PATH/*.gss > $BUILD_ROOT/$GSS_BUILD_PATH/vit.css
+css_md5=$(get_hash $BUILD_ROOT/$GSS_BUILD_PATH/vit.css)
+readonly GSS_OUTPUT_FILENAME="vit-$css_md5.css"
+echo "Writing generated CSS to $GSS_BUILD_PATH/$GSS_OUTPUT_FILENAME ..."
+mv $BUILD_ROOT/$GSS_BUILD_PATH/vit.css $BUILD_ROOT/$GSS_BUILD_PATH/$GSS_OUTPUT_FILENAME
+
+# Generate JS from SOY.
+echo "Generating JS files from SOY files..."
+java -classpath $BUILD_ROOT/$TOOL_BUILD_PATH:$soy_compiler_jar CompileSoy --soyFiles=$SRC_ROOT/$SOY_SRC_PATH \
+  --outputType=js --soyJsOutputPath=$BUILD_ROOT/$SOY_BUILD_PATH
+
+# Compile JS. Highlight any warnings that are from VIT source.
+echo "Compiling JS..."
+$closure_lib_dir/closure/bin/calcdeps.py -i $SRC_ROOT/$JS_SRC_PATH/vit.js -p $SRC_ROOT/$JS_SRC_PATH -p $BUILD_ROOT/$SOY_BUILD_PATH -p $closure_lib_dir/closure -p $soy_lib_dir -o compiled \
+  --compiler_jar=$js_compiler_jar \
+  -f "--compilation_level=ADVANCED_OPTIMIZATIONS" \
+  -f "--warning_level=VERBOSE" \
+  -f "--externs=$SRC_ROOT/$EXTERNS_PATH/externs.js" \
+  -f "--define=vit.api.API_KEY='$google_api_key'" \
+  -f "--create_source_map=$BUILD_ROOT/$JS_BUILD_PATH/vit.js.map" \
+  -f "--source_map_format=V3" \
+  --output_file=$BUILD_ROOT/$JS_BUILD_PATH/vit.js 2>&1 | grep -E --color "^$SRC_ROOT/$JS_SRC_PATH.+|\$"
+
+echo "Appending source map..."
+echo "//@ sourceMappingURL=./vit.js.map" >> $BUILD_ROOT/$JS_BUILD_PATH/vit.js
+
+# Generate HTML.
+echo "Generating index.html from SOY files..."
+relative_closure_lib_path="$(relative_path $BUILD_ROOT $closure_lib_dir)"
+java -classpath $BUILD_ROOT/$TOOL_BUILD_PATH:$soy_compiler_jar CompileSoy --soyFiles=$SRC_ROOT/$SOY_SRC_PATH --template=vit.templates.page \
+  --outputType=html \
+  -- \
+  --cssPath=$GSS_BUILD_PATH/$GSS_OUTPUT_FILENAME \
+  --scriptSource="js/vit.js" \
+  --apiKey=$google_api_key > $BUILD_ROOT/index.html

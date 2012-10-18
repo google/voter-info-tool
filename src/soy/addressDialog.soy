@@ -1,0 +1,52 @@
+/**
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Template for address entry component.
+ *
+ * @author jmwaura@google.com (Jesse Mwaura)
+ */
+
+{namespace vit.templates}
+
+/**
+ * Draw main content area.
+ */
+{template .addressDialog autoescape="contextual"}
+  <div class="{css address-dialog}">
+    <h3>
+      {msg desc="Title for section of page that allows polling place lookup."}
+        Polling Place Lookup
+      {/msg}
+    </h3>
+    <div class="{css region-selector}"></div>
+    <div class="{css address-form}">
+      {msg desc="Label for a textbox that allows the user to look up their voting information."}
+        Enter your address to get started.
+      {/msg}
+      <div class="{css text-autocomplete-wrapper}">
+        <input
+            class="{css address-autocomplete} {css text-autocomplete} {css text-autocomplete-ghost}"
+            type="text" value="1600 Pennsylvania Ave NW, Washington DC" disabled="disabled"/>
+        <input class="{css address-input} {css text-autocomplete}" type="text" value=""/>
+      </div>
+      <button class="{css address-search-button} {css action-button}"
+          title="{msg desc="Title for search button."}Search{/msg}">
+        <div class="{css search-icon} {css icon-sprite}"></div>
+      </button>
+    </div>
+  </div>
+{/template}

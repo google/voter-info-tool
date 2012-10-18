@@ -1,0 +1,171 @@
+/**
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Template for contest info component.
+ *
+ * @author jmwaura@google.com (Jesse Mwaura)
+ */
+
+{namespace vit.templates}
+
+/**
+ * Draw contest info.
+ * @param contests Hours when polls are open.
+ * @param addressWasEntered Whether or not the user entered an address.
+ */
+{template .contestInfo autoescape="contextual"}
+  <div class="{css contest-info}">
+    <div class="{css contest-header}">
+      <h3>
+        {msg desc="Title for section of page that shows ballot information."}
+          Contest Information
+        {/msg}
+      </h3>
+      {if $contests and length($contests) > 0}
+        <span class="{css contest-order-disclaimer}">
+          {msg desc="Explanation displayed at the top of ballot information table."}
+            may not be in ballot order
+          {/msg}
+        </span>
+      {/if}
+    </div>
+    {if $contests and length($contests) > 0}
+      <div class="{css scrolling-tab-bar-container}">
+        <button
+            class="{css scrolling-tab-bar-btn} {css scrolling-tab-bar-left-btn} {css icon-sprite}">
+        </button>
+        <div class="{css scrolling-tab-bar-viewport}">
+          <div class="{css goog-tab-bar}">
+            {foreach $contest in $contests}
+              <div class="{css goog-tab}">
+                {$contest.office}
+              </div>
+            {/foreach}
+          </div>
+        </div>
+        <button
+            class="{css scrolling-tab-bar-btn} {css scrolling-tab-bar-right-btn} {css icon-sprite}">
+        </button>
+      </div>
+      <div class="{css contest-tab-content}">
+      </div>
+    {else}
+      {call .noContestInfo data="all" /}
+    {/if}
+  </div>
+{/template}
+
+
+/**
+ * Draw content for when there are no contests to be displayed.
+ * @param addressWasEntered Whether or not the user entered an address.
+ */
+{template .noContestInfo autoescape="contextual"}
+  <div class="{css no-contest-wrapper}">
+    <div class="{css no-contest-message}">
+      {if $addressWasEntered}
+        {msg desc="Explanation that there is no content available for this area."}
+          Sorry, we could not find information on the contests in your area.
+        {/msg}
+      {else}
+        {msg desc="Explanation that more information is needed to populate this area."}
+          Enter your address and we'll look up which contests are on your ballot.
+        {/msg}
+      {/if}
+    </div>
+  </div>
+{/template}
+
+
+/**
+ * Draw contestants.
+ * @param candidates List of contestants in a race.
+ */
+{template .candidates autoescape="contextual"}
+  {if $candidates and length($candidates) > 0}
+    <table class="{css candidate-table}">
+      {foreach $candidate in $candidates}
+        <tr class="{css candidate}{if index($candidate) % 2 == 0} {css odd-candidate}{/if}">
+          <td>
+            <div class="{css candidate-info}">
+              <a class="{css candidate-btn}"
+                  href="https://www.google.com/search?q={$candidate.name}"
+                  target="_blank">
+                {$candidate.name}
+              </a>
+              {if $candidate.candidateUrl or $candidate.phone or $candidate.email}
+                <a href="javascript:void(0)"
+                    class="{css channel-btn} {css candidate-contact} {css icon-sprite}"
+                    {if $candidate.name}data-name="{$candidate.name}"{/if}
+                    {if $candidate.candidateUrl}data-url="{$candidate.candidateUrl}"{/if}
+                    {if $candidate.phone}data-phone="{$candidate.phone}"{/if}
+                    {if $candidate.email}data-email="{$candidate.email}"{/if}
+                    {if $candidate.photoUrl}data-image="{$candidate.photoUrl}"{/if}></a>
+              {/if}
+              {if $candidate.channels}
+                {if $candidate.channels.googleplus}
+                  <a class="{css channel-btn} {css googleplus} {css icon-sprite}"
+                    href="{$candidate.channels.googleplus}" target="_blank"></a>
+                {/if}
+                {if $candidate.channels.youtube}
+                  <a class="{css channel-btn} {css youtube} {css icon-sprite}"
+                    href="{$candidate.channels.youtube}" target="_blank"></a>
+                {/if}
+                {if $candidate.channels.facebook}
+                  <a class="{css channel-btn} {css facebook} {css icon-sprite}"
+                    href="{$candidate.channels.facebook}" target="_blank"></a>
+                {/if}
+                {if $candidate.channels.twitter}
+                  <a class="{css channel-btn} {css twitter} {css icon-sprite}"
+                    href="{$candidate.channels.twitter}" target="_blank"></a>
+                {/if}
+              {/if}
+            </div>
+          </td>
+          <td>
+            <div class="{css candidate-party} {css candidate-info}">{$candidate.party}</div>
+          </td>
+        </tr>
+      {/foreach}
+    </table>
+  {/if}
+{/template}
+
+/**
+ * Draw contestants.
+ * @param name Name of candidate.
+ * @param url URL for candidate's website.
+ * @param email Candidate email address.
+ * @param phone Candidate phone number.
+ */
+{template .candidateCard autoescape="contextual"}
+  <div class="{css candidate-card}">
+    <div class="{css candidate-card-name}">{$name}</div>
+    {if $url}
+      <div class="{css candidate-card-item}">
+        <a href="{$url}" class="{css candidate-link-icon} {css icon-sprite}"></a>
+        <a href="{$url}" class="{css candidate-link-text}">{$url}</a>
+      </div>
+    {/if}
+    {if $email}
+      <a href="mailto:{$email}" class="{css candidate-card-item}">{$email}</a>
+    {/if}
+    {if $phone}
+      <div class="{css candidate-card-item}">{$phone}</div>
+    {/if}
+  </div>
+{/template}
