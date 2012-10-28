@@ -50,7 +50,7 @@ VIT_SOY_COMPILER_JAR => Path to the closure template compiler jar file.
 VIT_GSS_COMPILER_JAR => Path to the closure stylesheet compiler jar file.
 
 VIT_CLOSURE_LIB_DIR => Path to the closure library directory that contains
-    base.js
+    all_tests.html
 
 VIT_SOY_LIB_DIR => Path to the closure template directory that contains the
     file soyutils_usegoog.js
@@ -58,10 +58,8 @@ VIT_SOY_LIB_DIR => Path to the closure template directory that contains the
 VIT_ANALYTICS_API_KEY => Your Google Analytics API Key.
     If no key is provided, analytics is disabled.
 
-VIT_MAPS_API_KEY => Your Google Maps API Key.
-    If no key is provided, maps and address autocompletion are disabled.
-
-VIT_CIVIC_INFO_API_KEY => Your Google Civic Info API key. Required.
+VIT_GOOGLE_API_KEY => Your Google API key. Required for maps, address auto-
+    completion and the Civic Info API.
 
 // TODO(jmwaura): flesh out these instructions a bit better as things settle.
 

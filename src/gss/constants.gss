@@ -41,6 +41,7 @@
 @def DARKISH_BACKGROUND_COLOR #f8f8f8;
 @def DARK_BACKGROUND_COLOR #f1f1f1;
 @def GREY_TEXT_COLOR #777;
+@def RED_TEXT_COLOR #d14836;
 @def STANDARD_BACKGROUND_COLOR #fff;
 @def TEXT_ON_VERY_DARK_BACKGROUND #fff;
 @def VERY_DARK_BACKGROUND #2d2d2d;
@@ -51,6 +52,7 @@
  * Borders and shadows.
  */
 @def STANDARD_BORDER 1px solid #ccc;
+@def STANDARD_RULE 1px solid #ebebeb;
 @def TOOLTIP_SHADOW 0 2px 4px rgba(0, 0, 0, 0.2);
 @def TOP_INSET_SHADOW inset 0px 1px 2px rgba(0, 0, 0, 0.1);
 
@@ -58,8 +60,6 @@
  * Fonts.
  */
 @def BODY_TEXT_SIZE 13px;
-@def LARGE_BODY_TEXT_SIZE 14px;
-@def LARGE_SECONDARY_TEXT_SIZE 12px;
 @def LARGE_TITLE_TEXT_SIZE 16px;
 @def SECONDARY_TEXT_SIZE 11px;
 @def TITLE_TEXT_SIZE 15px;

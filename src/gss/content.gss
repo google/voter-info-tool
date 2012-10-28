@@ -21,26 +21,33 @@
  */
 
 .content {
+  min-height: 350px;
   overflow: hidden;
 }
 
 .content-pane {
   @mixin box_sizing(border-box);
+  overflow: hidden;
+}
+
+.contest-pane {
+  min-height: 400px;
+  position: relative;
 }
 
 /* TODO(jmwaura): #nov7problem This is a horrible hack. Find a better way. */
 @media screen and (min-width:600px) {
-  .contest-pane {
-    border-left: STANDARD_BORDER;
-    /* Set bottom padding taller than the left column will ever be.*/
-    padding-bottom: 500px;
+  .contest-wrapper {
+    border-left: STANDARD_RULE;
     /* Eat up the extra space */
     margin-bottom: -500px;
+    /* Set bottom padding taller than the left column will ever be.*/
+    padding-bottom: 500px;
   }
 }
 
 @media screen and (min-width:800px) {
-  .contest-pane {
+  .contest-wrapper {
     margin-left: LARGE_LAYOUT_LEFT_COLUMN_WIDTH;
   }
 
@@ -51,7 +58,7 @@
 }
 
 @media screen and (min-width:600px) and (max-width: 799px) {
-  .contest-pane {
+  .contest-wrapper {
     float: left;
     width: 50%;
   }

@@ -15,7 +15,7 @@
  */
 
 /**
- * Template for base component.
+ * Template for host page that embeds the Voter Information Tool.
  *
  * @author jmwaura@google.com (Jesse Mwaura)
  */
@@ -23,13 +23,28 @@
 {namespace vit.templates}
 
 /**
- * Draw base layout with containers for each component.
+ * Renders the html page that contains the voter information tool.
+ * @param loaderSource Path to VIT js.
  */
-{template .base autoescape="contextual"}
-  <div class="{css base}">
-    {call .header /}
-    {call .alertContainer /}
-    {call .content /}
-    {call .footer data="all" /}
+{template .host autoescape="contextual"}
+<!doctype html>
+<html>
+<head>
+  <title>
+    Host Website
+  </title>
+  <script type="text/javascript" src="{$loaderSource}"></script>
+</head>
+<body style="background-color: #c44">
+  <h1>Outer Page</h1>
+  <pre>vit.load({lb}'region': 'DC'{rb});</pre>
+  <div id="_vit" style="width:90%; margin:auto; border: 10px solid #c99; background-color: #fff">
   </div>
+  <script type="text/javascript">
+    {literal}
+      vit.load({'region': 'DC'});
+    {/literal}
+  </script>
+</body>
+</html>
 {/template}

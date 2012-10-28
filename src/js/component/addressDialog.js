@@ -34,7 +34,7 @@ goog.require('goog.events.KeyCodes');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.soy');
 goog.require('goog.ui.Button');
-goog.require('goog.ui.Component');
+goog.require('vit.component.Component');
 goog.require('vit.component.RegionSelector');
 goog.require('vit.templates.addressDialog');
 
@@ -44,7 +44,7 @@ goog.require('vit.templates.addressDialog');
  * Component that manages address input dialog.
  * @param {vit.context.Context} context The application context.
  * @param {goog.dom.DomHelper=} opt_domHelper DOM helper to use.
- * @extends {goog.ui.Component}
+ * @extends {vit.component.Component}
  * @constructor
  */
 vit.component.AddressDialog = function(context, opt_domHelper) {
@@ -99,7 +99,7 @@ vit.component.AddressDialog = function(context, opt_domHelper) {
    */
   this.inputHandler_;
 };
-goog.inherits(vit.component.AddressDialog, goog.ui.Component);
+goog.inherits(vit.component.AddressDialog, vit.component.Component);
 
 
 /** @override */
@@ -173,14 +173,28 @@ vit.component.AddressDialog.prototype.handleKeyEvents_ = function(e) {
   var el = /** @type Element */ (e.target);
   var value = goog.dom.forms.getValue(el);
   var suggestion = goog.dom.forms.getValue(this.autocompleteBox_);
-  if (e.keyCode == goog.events.KeyCodes.ENTER) {
-    this.submit_();
-  } else if ((e.keyCode == goog.events.KeyCodes.TAB ||
-      e.keyCode == goog.events.KeyCodes.RIGHT) &&
+
+  /**
+   * If TAB, RIGHT or ENTER and at the end of the text, complete.
+   * Else if DELETE or BACKSPACE at end of text, remove suggestion.
+   * If ENTER, always submit (but after completion).
+   */
+  if ((e.keyCode == goog.events.KeyCodes.TAB ||
+      e.keyCode == goog.events.KeyCodes.RIGHT ||
+      e.keyCode == goog.events.KeyCodes.ENTER) &&
       goog.dom.selection.getStart(el) >= value.length &&
       suggestion.lastIndexOf(value, 0) == 0) {
     // TODO(jmwaura): Handle RTL languages.
     goog.dom.forms.setValue(el, suggestion);
+  } else if ((e.keyCode == goog.events.KeyCodes.DELETE ||
+    e.keyCode == goog.events.KeyCodes.BACKSPACE) &&
+      goog.dom.selection.getStart(el) >= value.length &&
+      suggestion.length > value.length) {
+    goog.dom.forms.setValue(this.autocompleteBox_, '');
+    e.preventDefault();
+  }
+  if (e.keyCode == goog.events.KeyCodes.ENTER) {
+    this.submit_();
   }
 };
 

@@ -1,0 +1,134 @@
+/**
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Templates for error messages.
+ *
+ * @author jmwaura@google.com (Jesse Mwaura)
+ */
+
+{namespace vit.templates.errors}
+
+/**
+ * Render suggestion that the user visit the leo website.
+ * @param url The url of the official website.
+ * @param electionOfficial The name of the election official.
+ */
+{template .suggestOfficial autoescape="contextual"}
+  {if $url}
+    {msg desc="Suggestion for where the user can get their voting information."}
+      Check the <a target="_blank" href="{$url}">{$electionOfficial}</a>{sp}
+      website for complete voter information.
+    {/msg}
+  {else}
+    {msg desc="Suggestion for where the user can get their voting information."}
+      Contact your local election official for complete voter information.
+    {/msg}
+  {/if}
+{/template}
+
+
+/**
+ * Render generic failure message.
+ */
+{template .genericFailure autoescape="contextual"}
+  {msg desc="Error message from a lookup failure."}
+    We encountered an error and could not complete your request. If the problem
+    persists, please report your problem and mention this error message and the
+    query that caused it. That's all we know.
+  {/msg}
+{/template}
+
+
+/**
+ * Render "no street segment" error message.
+ */
+{template .noStreetSegment autoescape="contextual"}
+  {msg desc="Error message from a lookup failure."}
+    We were unable to find the voting information for your address.
+  {/msg}
+{/template}
+
+
+/**
+ * Render "no polling location" error message.
+ */
+{template .noPollingLocation autoescape="contextual"}
+  {msg desc="Error message from a lookup failure."}
+    Sorry, we were unable to find your election day polling location.
+  {/msg}
+{/template}
+
+
+/**
+ * Render "address unparseable" error message.
+ */
+{template .addressUnparseable autoescape="contextual"}
+  {msg desc="Error message from a lookup failure."}
+    We did not understand your address. Please make sure it is spelled correctly
+    and includes a city and state.
+  {/msg}
+{/template}
+
+
+/**
+ * Render "multiple street segments" error message.
+ */
+{template .multipleSegments autoescape="contextual"}
+  {msg desc="Error message from a lookup failure."}
+    We were unable to find accurate information for your address.
+  {/msg}
+{/template}
+
+
+/**
+ * Render "election over" error message.
+ * @param name Election name.
+ * @param date Election end date.
+ */
+{template .electionOver autoescape="contextual"}
+  {if $name}
+    {msg desc="Error message from a lookup failure."}
+      The election "{$name}" took place on {$date}. Voter information is no longer
+      available for this election.
+    {/msg}
+  {else}
+    {msg desc="Error message from a lookup failure."}
+      The election has already taken place. Voter information is no longer available.
+    {/msg}
+  {/if}
+{/template}
+
+
+/**
+ * Render "election unknown" error message.
+ */
+{template .electionUnknown autoescape="contextual"}
+  {msg desc="Error message from a lookup failure."}
+    This application has been configured incorrectly. If you maintain the application,
+    please make sure you are providing a valid election id.
+  {/msg}
+{/template}
+
+
+/**
+ * Render "test election" error message.
+ */
+{template .testElection autoescape="contextual"}
+  {msg desc="Warning message after a lookup"}
+    This data is for testing purposes only.
+  {/msg}
+{/template}

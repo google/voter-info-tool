@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@def LOGOS_URL_469D8325 url(LOGOS_9.png);
+@def LOGOS_URL_469D8325 none;
 @def LOGOS_OVERALLWIDTH 70px;
 @def LOGOS_OVERALLHEIGHT 40px;
 @def LOGOS_DATAURI none;

@@ -15,7 +15,7 @@
  */
 
 /**
- * Template for base component.
+ * Template for large map component.
  *
  * @author jmwaura@google.com (Jesse Mwaura)
  */
@@ -25,11 +25,6 @@
 /**
  * Draw base layout with containers for each component.
  */
-{template .base autoescape="contextual"}
-  <div class="{css base}">
-    {call .header /}
-    {call .alertContainer /}
-    {call .content /}
-    {call .footer data="all" /}
-  </div>
+{template .largeMap autoescape="contextual"}
+  <div class="{css large-map}"></div>
 {/template}

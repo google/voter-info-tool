@@ -25,26 +25,18 @@ goog.provide('vit.Base');
 
 goog.require('goog.Uri');
 goog.require('goog.dom');
+goog.require('goog.dom.ViewportSizeMonitor');
 goog.require('goog.events');
 goog.require('goog.events.EventTarget');
+goog.require('goog.json');
+goog.require('goog.locale');
 goog.require('vit.agent.Autocomplete');
 goog.require('vit.agent.CivicInfo');
-goog.require('vit.component.Alert');
-goog.require('vit.component.Contest');
-goog.require('vit.component.Leo');
-goog.require('vit.component.Polling');
+goog.require('vit.agent.Xpc');
+goog.require('vit.component.Component');
+goog.require('vit.component.Page');
 goog.require('vit.context');
 goog.require('vit.context.Context');
-
-
-/**
- * Main entry point for VoterInfo.
- * @return {vit.Base} New Base instance.
- * @private
- */
-vit.init_ = function() {
-  return new vit.Base().init();
-};
 
 
 
@@ -57,18 +49,11 @@ vit.Base = function() {
   goog.base(this);
 
   /**
-   * Polling pane component.
-   * @type {vit.component.Polling}
+   * The page component.
+   * @type {vit.component.Page}
    * @private
    */
-  this.pollingPane_;
-
-  /**
-   * Contest pane component.
-   * @type {vit.component.Contest}
-   * @private
-   */
-  this.contestPane_;
+  this.pageComponent_;
 
   /**
    * Configuration object.
@@ -76,8 +61,69 @@ vit.Base = function() {
    * @private
    */
   this.config_;
+
+  /**
+   * The xpc agent that handles communication between this page and the
+   * VIT frame.
+   * @type {vit.agent.Xpc}
+   * @private
+   */
+  this.xpc_;
+
+  /**
+   * The timeout id for pending document change events.
+   * @type {?number}
+   * @private
+   */
+  this.documentChangeTimeout_;
+
+  /**
+   * The listener for document change events.
+   * @type {?number}
+   * @private
+   */
+  this.documentChangeListener_;
+
+  /**
+   * The listener for viewport size change events.
+   * @type {?number}
+   * @private
+   */
+  this.viewportSizeListener_;
+
+  /**
+   * The last recorded content height.
+   * @type {?number}
+   * @private
+   */
+  this.contentHeight_;
 };
 goog.inherits(vit.Base, vit.context.Context);
+
+
+/**
+ * Default configuration for the tool.
+ * @const {Object}
+ */
+vit.Base.DEFAULT_CONFIG = {
+  'election_id': '4000',
+  'referrer': document.referrer
+};
+
+
+/**
+ * Number of milliseconds to wait for configuration.
+ * @const {number}
+ */
+vit.Base.CONFIG_TIMEOUT = 250;
+
+
+/**
+ * The interval in milliseconds to wait before reacting to a document change
+ * event.
+ * @const {number}
+ */
+vit.Base.DOCUMENT_CHANGE_DEBOUNCE_TIMEOUT = 100;
 
 
 /**
@@ -86,8 +132,35 @@ goog.inherits(vit.Base, vit.context.Context);
  */
 vit.Base.prototype.init = function() {
   this.subscribe(vit.context.CONFIG, this.onConfig_, this);
-  // TODO(jmwaura): Handle configuration initialization properly.
-  this.set(vit.context.CONFIG, {'election_id': '4000', 'official_only': false});
+
+  // Go ahead and start up with defaults after timeout elapses.
+  var timeout = setTimeout(goog.bind(function() {
+    this.set(vit.context.CONFIG, vit.Base.DEFAULT_CONFIG);
+  },this), vit.Base.CONFIG_TIMEOUT);
+
+  // Set up the xpc connection and listen for incoming configuration changes.
+  var xpc = new vit.agent.Xpc();
+  xpc.initInner();
+  xpc.registerService(vit.agent.Xpc.Service.CONFIG,
+      goog.bind(function(timeout, payload) {
+        // We have our configuration. Disable the timeout.
+        clearTimeout(timeout);
+        if (goog.isDefAndNotNull(this.get(vit.context.CONFIG))) {
+          // Configuration may only be set once. Ignore this.
+          return;
+        }
+
+        // Extend the defaults with the incoming configuration.
+        var config = {};
+        goog.object.extend(config, vit.Base.DEFAULT_CONFIG,
+            goog.json.parse(payload));
+        this.set(vit.context.CONFIG, config);
+      }, this, timeout));
+
+  xpc.connect(goog.bind(function() {
+    this.xpc_ = xpc;
+    this.registerDisposable(this.xpc_);
+  }, this));
   return this;
 };
 
@@ -112,7 +185,9 @@ vit.Base.prototype.onConfig_ = function(config) {
       .setParameterValue('key', vit.api.API_KEY)
       .setParameterValue('sensor', 'false')
       .setParameterValue('libraries', 'places')
-      .setParameterValue('v', '3.10')});
+      .setParameterValue('v', '3.10')
+      .setParameterValue('language',
+          goog.locale.getLanguageSubTag(goog.LOCALE))});
 
   // load gapi client.
   uriList.push({
@@ -134,9 +209,14 @@ vit.Base.prototype.onDepsLoaded_ = function() {
   var autocompleteAgent = new vit.agent.Autocomplete(this).init();
   this.registerDisposable(autocompleteAgent);
   var config = this.get(vit.context.CONFIG);
-  if (goog.isDef(config[vit.context.REGION])) {
-    if (config[vit.context.REGION]) {
-      this.set(vit.context.REGION, config[vit.context.REGION]);
+  if (config[vit.context.ConfigName.ADDRESS]) {
+    this.set(vit.context.ADDRESS, config[vit.context.ConfigName.ADDRESS]);
+  } else if (goog.isDef(config[vit.context.ConfigName.REGION])) {
+    // Make sure region is not explicitly set to null.
+    // This way we can distinguish between "please don't geocode" and
+    // "I have no clue, you do it."
+    if (config[vit.context.ConfigName.REGION]) {
+      this.set(vit.context.REGION, config[vit.context.ConfigName.REGION]);
     }
   } else {
     if (google.loader.ClientLocation && google.loader.ClientLocation.address &&
@@ -154,31 +234,68 @@ vit.Base.prototype.onDepsLoaded_ = function() {
  * Create components and attach to dom.
  */
 vit.Base.prototype.decorate = function() {
-  var pollingPane = new vit.component.Polling(this);
-  pollingPane.decorate(
-      goog.dom.getElementByClass(goog.getCssName('polling-pane')));
-  this.registerDisposable(pollingPane);
+  var pageComponent = new vit.component.Page(this);
+  // Attach listener before rendering the page.
+  this.documentChangeListener_ = goog.events.listen(pageComponent,
+      vit.component.Component.EventType.DOCUMENT_CHANGE,
+      goog.bind(this.onDocumentChange_, this));
+  pageComponent.decorate(
+      goog.dom.getElementByClass(goog.getCssName('base')));
+  this.registerDisposable(pageComponent);
 
-  var contestPane = new vit.component.Contest(this);
-  contestPane.decorate(
-      goog.dom.getElementByClass(goog.getCssName('contest-pane')));
-  this.registerDisposable(contestPane);
+  var vsm = new goog.dom.ViewportSizeMonitor();
+  this.registerDisposable(vsm);
+  this.viewportSizeListener_ = goog.events.listen(vsm,
+      goog.events.EventType.RESIZE,
+      goog.bind(this.onDocumentChange_, this));
+};
 
-  var alert = new vit.component.Alert(this);
-  alert.decorate(
-      goog.dom.getElementByClass(goog.getCssName('alert-container')));
-  this.registerDisposable(alert);
 
-  var leo = new vit.component.Leo(this);
-  leo.decorate(
-      goog.dom.getElementByClass(goog.getCssName('leo-info-container')));
-  this.registerDisposable(leo);
+/**
+ * Checks if client height has changed and publishes these changes over the xpc
+ * channel.
+ * @private
+ */
+vit.Base.prototype.onDebouncedDocumentChange_ = function() {
+  if (! this.xpc_) {
+    return;
+  }
+  this.documentChangeTimeout_ = null;
+  var height = document.body.clientHeight;
+  if (height != this.contentHeight_) {
+    this.contentHeight_ = height;
+    this.xpc_.send(vit.agent.Xpc.Service.RESIZE, '' + height);
+  }
+};
+
+
+/**
+ * Handles document change events.
+ * @private
+ */
+vit.Base.prototype.onDocumentChange_ = function() {
+  if (goog.isDefAndNotNull(this.documentChangeTimeout_)) {
+    return;
+  }
+  this.documentChangeTimeout_ = setTimeout(
+      goog.bind(this.onDebouncedDocumentChange_, this),
+      vit.Base.DOCUMENT_CHANGE_DEBOUNCE_TIMEOUT);
 };
 
 
 /** @override */
 vit.Base.prototype.disposeInternal = function() {
   goog.base(this, 'disposeInternal');
+};
+
+
+/**
+ * Main entry point for VoterInfo.
+ * @return {vit.Base} New Base instance.
+ * @private
+ */
+vit.init_ = function() {
+  return new vit.Base().init();
 };
 
 

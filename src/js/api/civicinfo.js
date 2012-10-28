@@ -22,8 +22,10 @@
 goog.provide('vit.api.CivicInfo');
 goog.provide('vit.api.CivicInfo.Status');
 
+goog.require('goog.array');
 goog.require('goog.string.path');
 goog.require('vit.api.Api');
+goog.require('vit.api.Distance');
 
 
 
@@ -91,7 +93,9 @@ vit.api.CivicInfo.prototype.lookup = function(address, callback) {
   var responseTransformer = goog.bind(function(callback, response, raw) {
     callback(response ? this.transformResponse(response) : response, raw);
   }, this, callback);
-  this.request(this.apiPath_, vit.api.POST, params, body, responseTransformer);
+  var distanceAppender = goog.bind(this.appendDistance,
+      this, responseTransformer);
+  this.request(this.apiPath_, vit.api.POST, params, body, distanceAppender);
 };
 
 
@@ -261,9 +265,12 @@ vit.api.CivicInfo.prototype.transformPollingLocation = function(obj) {
   out.address = this.transformAddress(obj['address']);
   out.pollingHours = obj['pollingHours'];
   out.name = obj['name'];
+  out.notes = obj['notes'];
   out.voterServices = obj['voterServices'];
   out.startDate = obj['startDate'];
   out.endDate = obj['endDate'];
+  out.distance = obj['distance'];
+  out.duration = obj['duration'];
 
   if (goog.isDefAndNotNull(obj['sources'])) {
     var len = obj['sources'].length;
@@ -415,15 +422,18 @@ vit.api.CivicInfo.prototype.transformResponse = function(obj) {
   out.election = this.transformElection(obj['election']);
   out.normalizedInput = this.transformAddress(obj['normalizedInput']);
 
+  var len;
+
   if (goog.isDefAndNotNull(obj['pollingLocations'])) {
-    var len = obj['pollingLocations'].length;
+    len = obj['pollingLocations'].length;
     /** @type {Array.<vit.api.CivicInfo.PollingLocation>} */
     var pollingLocationsArray = [];
     for (var i = 0; i < len; i++) {
       pollingLocationsArray[i] = this.transformPollingLocation(
           obj['pollingLocations'][i]);
     }
-    out.pollingLocations = pollingLocationsArray;
+    out.pollingLocations = pollingLocationsArray.sort(
+        vit.api.CivicInfo.comparePollingLocations);
   }
 
   if (goog.isDefAndNotNull(obj['earlyVoteSites'])) {
@@ -434,7 +444,8 @@ vit.api.CivicInfo.prototype.transformResponse = function(obj) {
       earlyVoteSitesArray[i] = this.transformPollingLocation(
         obj['earlyVoteSites'][i]);
     }
-    out.earlyVoteSites = earlyVoteSitesArray;
+    out.earlyVoteSites = earlyVoteSitesArray.sort(
+        vit.api.CivicInfo.comparePollingLocations);
   }
 
   if (goog.isDefAndNotNull(obj['contests'])) {
@@ -444,21 +455,15 @@ vit.api.CivicInfo.prototype.transformResponse = function(obj) {
     for (var i = 0; i < len; i++) {
       contestsArray[i] = this.transformContest(obj['contests'][i]);
     }
-    contestsArray = contestsArray.filter(function(contest) {
-      return contest.candidates && contest.candidates.length;
+    contestsArray = goog.array.filter(contestsArray, function(contest) {
+      return (contest.candidates && contest.candidates.length) ? true : false;
     });
     out.contests = contestsArray.sort(function(a, b) {
-      // First sort by ballot placement.
-      var comparison = (a && a.ballotPlacement || Number.MAX_VALUE) -
-          (b && b.ballotPlacement || Number.MAX_VALUE);
-      if (comparison != 0) {
-        return comparison;
-      }
-
-      // Then by level.
-      comparison = (a && a.level && vit.api.CivicInfo.SCOPE_ORDER[a.level] ||
+      // Sort by level.
+      var comparison = (a && a.level &&
+          vit.api.CivicInfo.LEVEL_ORDER[a.level] ||
           Number.MAX_VALUE) - (b && b.level &&
-          vit.api.CivicInfo.SCOPE_ORDER[b.level] || Number.MAX_VALUE);
+          vit.api.CivicInfo.LEVEL_ORDER[b.level] || Number.MAX_VALUE);
       if (comparison != 0) {
         return comparison;
       }
@@ -472,6 +477,52 @@ vit.api.CivicInfo.prototype.transformResponse = function(obj) {
       if (comparison != 0) {
         return comparison;
       }
+
+      // then by ballot placement.
+      comparison = (a && a.ballotPlacement || Number.MAX_VALUE) -
+          (b && b.ballotPlacement || Number.MAX_VALUE);
+      if (comparison != 0) {
+        return comparison;
+      }
+
+      // TODO(jmwaura): The rest of these are a hack and need to be cleaned up.
+      // President
+      if (a && a.office && a.office.toLowerCase().indexOf('president') >= 0) {
+        return -1;
+      } else if (b && b.office &&
+          b.office.toLowerCase().indexOf('president') >= 0) {
+        return 1;
+      }
+      // Governor
+      if (a && a.office && a.office.toLowerCase().indexOf('governor') >= 0) {
+        return -1;
+      } else if (b && b.office &&
+          b.office.toLowerCase().indexOf('governor') >= 0) {
+        return 1;
+      }
+      // Senator
+      if (a && a.office && a.office.toLowerCase().indexOf('senat') >= 0) {
+        return -1;
+      } else if (b && b.office &&
+          b.office.toLowerCase().indexOf('senat') >= 0) {
+        return 1;
+      }
+      // Representative
+      if (a && a.office && a.office.toLowerCase().indexOf('represent') >= 0) {
+        return -1;
+      } else if (b && b.office &&
+          b.office.toLowerCase().indexOf('represent') >= 0) {
+        return 1;
+      }
+      // Representative
+      if (a && a.office && a.office.toLowerCase().indexOf('chair') >= 0) {
+        return -1;
+      } else if (b && b.office &&
+          b.office.toLowerCase().indexOf('chair') >= 0) {
+        return 1;
+      }
+
+      return 0;
     });
   }
 
@@ -485,6 +536,61 @@ vit.api.CivicInfo.prototype.transformResponse = function(obj) {
     out.state = stateArray;
   }
   return /** @type {vit.api.CivicInfo.Response} */ (out);
+};
+
+
+/**
+ * Sort polling locations and early vote sites by distance.
+ * This method will also append the distance data to the Polling Locations.
+ * @param {function((!Object|boolean), string)} callback The function to call
+ *   when the sorting completes.
+ * @param {!Object|boolean} civicInfo The response object
+ *   whose locations to sort.
+ * @param {string} raw The raw API response to pass through to the callback.
+ */
+vit.api.CivicInfo.prototype.appendDistance =
+    function(callback, civicInfo, raw) {
+  if ((civicInfo['pollingLocations'] && civicInfo['pollingLocations'].length) ||
+    (civicInfo['earlyVoteSites'] && civicInfo['earlyVoteSites'].length)) {
+    // Add polling locations and early vote sites to an array.
+    var locationArray = [];
+    var addressArray = [];
+    if (civicInfo['pollingLocations'] && civicInfo['pollingLocations'].length) {
+      goog.array.extend(locationArray, civicInfo['pollingLocations']);
+    }
+    if (civicInfo['earlyVoteSites'] && civicInfo['earlyVoteSites'].length) {
+      goog.array.extend(locationArray, civicInfo['earlyVoteSites']);
+    }
+    for (var i = 0; i < locationArray.length; i++) {
+      if (locationArray[i].address) {
+        addressArray.push(vit.api.CivicInfo.addressToString(
+            locationArray[i].address, true, true));
+      } else {
+        // Abort.
+        callback(civicInfo, raw);
+      }
+    }
+
+    var origin = vit.api.CivicInfo.addressToString(
+        civicInfo['normalizedInput']);
+
+    var distanceService = vit.api.Distance.getInstance();
+    distanceService.getDistances(origin, addressArray, function(distances) {
+      if (!distances || !distances.length) {
+        // There was an issue getting distances. Abort.
+        callback(civicInfo, raw);
+      } else {
+        for (var i = 0; i < distances.length; i++) {
+          locationArray[i]['distance'] = distances[i]['distance'];
+          locationArray[i]['duration'] = distances[i]['duration'];
+        }
+        callback(civicInfo, raw);
+      }
+    });
+
+  } else {
+    callback(civicInfo, raw);
+  }
 };
 
 
@@ -508,6 +614,10 @@ vit.api.CivicInfo.prototype.disposeInternal = function() {
 vit.api.CivicInfo.addressToString = function(address, opt_ignoreLocationName,
     opt_ignoreZip) {
   var addressStr = '';
+  if (!address) {
+    return addressStr;
+  }
+
   if (!opt_ignoreLocationName) {
     addressStr += address.locationName ? address.locationName + ', ' : '';
   }
@@ -530,16 +640,28 @@ vit.api.CivicInfo.addressToString = function(address, opt_ignoreLocationName,
 
 
 /**
+ * Compares two polling locations for sorting.
+ * @param {vit.api.CivicInfo.PollingLocation} a First polling location.
+ * @param {vit.api.CivicInfo.PollingLocation} b Second polling location.
+ * @return {number} a - b.
+ */
+vit.api.CivicInfo.comparePollingLocations = function(a, b) {
+  return (a && a.distance && a.distance.value || Number.MAX_VALUE) -
+      (b && b.distance && b.distance.value || Number.MAX_VALUE);
+};
+
+
+/**
  * The order by which to sort office levels in contests.
  * @type {Object.<string, number>}
  * @const
  */
 vit.api.CivicInfo.LEVEL_ORDER = {
-  'federal': 0,
-  'state': 1,
-  'county': 2,
-  'city': 3,
-  'other': 4
+  'federal': 1,
+  'state': 2,
+  'county': 3,
+  'city': 4,
+  'other': 5
 };
 
 
@@ -549,15 +671,15 @@ vit.api.CivicInfo.LEVEL_ORDER = {
  * @const
  */
 vit.api.CivicInfo.SCOPE_ORDER = {
-  'statewide': 0,
-  'congressional': 1,
-  'stateUpper': 2,
-  'stateLower': 3,
-  'countywide': 4,
-  'judicial': 5,
-  'schoolBoard': 6,
-  'cityWide': 7,
-  'special': 8
+  'statewide': 1,
+  'congressional': 2,
+  'stateUpper': 3,
+  'stateLower': 4,
+  'countywide': 5,
+  'judicial': 6,
+  'schoolBoard': 7,
+  'cityWide': 8,
+  'special': 9
 };
 
 
@@ -633,12 +755,15 @@ vit.api.CivicInfo.Address;
  * Type definition of PollingLocation.
  * @typedef {{
  *   address: vit.api.CivicInfo.Address,
+ *   notes: string,
  *   pollingHours: string,
  *   name: string,
  *   voterServices: string,
  *   startDate: string,
  *   endDate: string,
- *   sources: Array.<vit.api.CivicInfo.Source>
+ *   sources: Array.<vit.api.CivicInfo.Source>,
+ *   distance: google.maps.Distance,
+ *   duration: google.maps.Duration
  * }}
  */
 vit.api.CivicInfo.PollingLocation;

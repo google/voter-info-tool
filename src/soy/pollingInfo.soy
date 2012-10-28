@@ -25,17 +25,286 @@
 /**
  * Draw polling place info.
  * @param pollingLocation Polling location information.
+ * @param allPollingLocations Info on all polling locations.
+ * @param earlyVoteSites Early Vote Site information.
  * @param normalizedInput Normalized form of user address.
  * @param staticMapUrl URL for static polling location map image.
- * @param mapUrl URL for link to full map.
  * @param directionsUrl URL to directions from registration address to polling place.
+ * @param? suggestOfficial Text to suggest that the user check with their election official.
  */
 {template .pollingInfo autoescape="contextual"}
   <div class="{css polling-info}">
-    <div class="{css normalized-address} {css voter-info-section}">
+    <div class="{css voter-info-section}">
+      {call .normalizedAddress}
+        {param normalizedInput: $normalizedInput /}
+        {param showChangeLink: true /}
+      {/call}
+    </div>
+    <div class="{css voter-info-accordion}">
+      {if $earlyVoteSites}
+        <div class="{css voter-info-section} {css zippy} {css early-vote-zippy}">
+          <div class="{css zippy-header}">
+            <div class="{css icon-sprite} {css zippy-arrow}"></div>
+            <span class="{css zippy-header-title} {css zippy-header-collapsed-title}">
+              {msg desc="Title for section showing early vote locations."}
+                Your early vote locations.
+              {/msg}
+            </span>
+            <span class="{css zippy-header-prompt} {css if-collapsed}">
+              {msg desc="Prompt for user to look up their early vote information"}
+                You can vote early in {$normalizedInput.state}, find out where.
+              {/msg}
+            </span>
+            <span class="{css zippy-header-prompt} {css if-expanded}">
+              {msg desc="Explanation that accompanies a list of locations."}
+                Select a location to show it on the map.
+              {/msg}
+            </span>
+          </div>
+          {call .pollingLocationList}
+            {param pollingLocations: $earlyVoteSites /}
+          {/call}
+        </div>
+      {/if}
+      {if $pollingLocation}
+        <div class="{css voter-info-section} {css zippy} {css expanded} {css election-day-zippy}">
+          <div class="{css zippy-header}">
+            <div class="{css icon-sprite} {css zippy-arrow}"></div>
+            <span class="{css zippy-header-title}">
+              {if $allPollingLocations}
+                {msg desc="Title for section that contains polling place information"}
+                  Your closest polling place and ballot summary
+                {/msg}
+              {else}
+                {msg desc="Title for section that contains polling place information"}
+                  Your polling place and ballot summary
+                {/msg}
+              {/if}
+            </span>
+          </div>
+          <div class="{css zippy-content} {css polling-location-section}">
+            <a href="{$directionsUrl}" target="_blank" class="{css polling-location-map}">
+              <img class="{css polling-location-static-map-image}" src="{$staticMapUrl}"/>
+            </a>
+            <div class="{css polling-location-text}">
+              {if $pollingLocation.pollingHours}
+                <div class="{css polling-location-hours}">{$pollingLocation.pollingHours}</div>
+              {/if}
+              {if $pollingLocation.address.locationName}
+                <div class="{css polling-location-name}">
+                  {$pollingLocation.address.locationName}
+                </div>
+              {/if}
+              <a href="{$directionsUrl}" target="_blank" class="{css polling-location-address}">
+                <div class="{css polling-location-line}">{$pollingLocation.address.line1}</div>
+                {if $pollingLocation.address.line2}
+                  <div class="{css polling-location-line}">{$pollingLocation.address.line2}</div>
+                {/if}
+                {if $pollingLocation.address.line3}
+                  <div class="{css polling-location-line}">{$pollingLocation.address.line3}</div>
+                {/if}
+                <div class="{css polling-location-line}">
+                  {$pollingLocation.address.city},{sp}
+                  {$pollingLocation.address.state}{sp}
+                  {$pollingLocation.address.zip}
+                </div>
+              </a>
+              {if $pollingLocation.notes}
+                <div class="{css polling-location-notes}">{$pollingLocation.notes}</div>
+              {/if}
+              <div><cite>maps.google.com</cite></div>
+              <a href="{$directionsUrl}" target="_blank" class="{css polling-location-directions}">
+                {msg desc="Link text displayed next to an address"}Get directions{/msg}
+              </a>
+            </div>
+          </div>
+        </div>
+      {else}
+        <div class="{css voter-info-section}">
+          <span class="{css alert-title}">
+            {call vit.templates.errors.noPollingLocation/}
+          </span>
+          <span class="{css alert-description}">
+            {$suggestOfficial|noAutoescape}
+          </span>
+        </div>
+      {/if}
+      {if $allPollingLocations}
+        <div class="{css voter-info-section} {css zippy} {css other-locations-zippy}">
+          <div class="{css zippy-header}">
+            <div class="{css icon-sprite} {css zippy-arrow}"></div>
+            <span class="{css zippy-header-title} {css zippy-header-collapsed-title}">
+              {msg desc="Prompt for user to look up all their polling places"}
+                All your election day polling places.
+              {/msg}
+            </span>
+            <span class="{css zippy-header-prompt} {css if-collapsed}">
+              {msg desc="Link text for early polling location lookup."}
+                You have more options for election day polling places.
+              {/msg}
+            </span>
+            <span class="{css zippy-header-prompt} {css if-expanded}">
+              {msg desc="Explanation that accompanies a list of locations."}
+                Select a location to show it on the map.
+              {/msg}
+            </span>
+          </div>
+          {call .pollingLocationList}
+            {param pollingLocations: $allPollingLocations /}
+          {/call}
+        </div>
+      {/if}
+    </div>
+  </div>
+{/template}
+
+
+/**
+ * Render polling location list.
+ * @param pollingLocations The list of polling locations.
+ */
+{template .pollingLocationList autoescape="contextual"}
+  <div class="{css zippy-content} {css location-list} {css goog-tab-bar} {css goog-tab-bar-start}">
+    {foreach $pollingLocation in $pollingLocations}
+      {call .pollingLocationItem}
+        {param pollingLocation: $pollingLocation /}
+        {param index: index($pollingLocation) /}
+      {/call}
+    {/foreach}
+  </div>
+{/template}
+
+
+/**
+ * Render polling place info for a single member of a list.
+ * @param pollingLocation Polling location information.
+ * @param index The index of this item in the list.
+ */
+{template .pollingLocationItem autoescape="contextual"}
+  <div class="{css polling-location-item}{if $index % 2 == 1}{sp}{css odd}{/if} {css goog-tab}"
+      data-plid="{$index}">
+    <div class="{css icon-sprite} {css polling-pin-icon} {css hidden}"></div>
+    {call .pollingLocationCompact data="all" /}
+  </div>
+{/template}
+
+/**
+ * Render polling place in compact form.
+ * @param pollingLocation Polling location information.
+ */
+{template .pollingLocationCompact autoescape="contextual"}
+  <div class="{css polling-location-compact}">
+    {if $pollingLocation.name or $pollingLocation.address.locationName}
+      <span class="{css name} {css line}">
+        {if $pollingLocation.name}
+          {$pollingLocation.name}
+          {if $pollingLocation.address.locationName}
+            ,{sp}
+          {/if}
+        {/if}
+        {if $pollingLocation.address.locationName}
+          {$pollingLocation.address.locationName}
+        {/if}
+      </span>
+    {/if}
+    <span class="{css address} {css line}">
+      {call .addressLine}
+        {param address: $pollingLocation.address /}
+      {/call}{sp}
+      {if $pollingLocation.distance}
+        <span class="{css polling-location-distance}">
+            ({$pollingLocation.distance.text})
+        </span>
+      {/if}
+    </span>
+    <span class="{css hours} {css line}">
+      {if $pollingLocation.startDate and $pollingLocation.endDate}
+        {msg desc="description of the times a polling location is open, including dates"}
+          Open {$pollingLocation.pollingHours},{sp}
+          from {$pollingLocation.startDate} to {$pollingLocation.endDate}
+        {/msg}
+      {else}
+        {msg desc="description of the times a polling location is open"}
+          Open {$pollingLocation.pollingHours}
+        {/msg}
+      {/if}
+    </span>
+    {if $pollingLocation.notes}
+      <span class="{css notes} {css line}">{$pollingLocation.notes}</span>
+    {/if}
+  </div>
+{/template}
+
+/**
+ * Render polling place for info window.
+ * @param pollingLocation Polling location information.
+ * @param? originAddress Origin address for directions.
+ */
+{template .pollingLocationInfoWindow autoescape="contextual"}
+  <div class="{css polling-location-info-window}">
+    {if $pollingLocation.name or $pollingLocation.address.locationName}
+      <span class="{css name} {css line}">
+        {if $pollingLocation.name}
+          {$pollingLocation.name}
+          {if $pollingLocation.address.locationName}
+            ,{sp}
+          {/if}
+        {/if}
+        {if $pollingLocation.address.locationName}
+          {$pollingLocation.address.locationName}
+        {/if}
+      </span>
+    {/if}
+    <span class="{css address} {css line}">
+      {call .addressLine}
+        {param address: $pollingLocation.address /}
+      {/call}{sp}
+      {if $pollingLocation.distance}
+        <span class="{css polling-location-distance}">
+            ({$pollingLocation.distance.text})
+        </span>
+      {/if}
+    </span>
+    <span class="{css hours} {css line}">
+      {if $pollingLocation.startDate and $pollingLocation.endDate}
+        {msg desc="description of the times a polling location is open, including dates"}
+          Open {$pollingLocation.pollingHours},{sp}
+          from {$pollingLocation.startDate} to {$pollingLocation.endDate}
+        {/msg}
+      {else}
+        {msg desc="description of the times a polling location is open"}
+          Open {$pollingLocation.pollingHours}
+        {/msg}
+      {/if}
+    </span>
+    {if $pollingLocation.notes}
+      <span class="{css notes} {css line}">{$pollingLocation.notes}</span>
+    {/if}
+    {if $originAddress}
+      <a class="{css directions-link}" target="_blank" href="https://maps.google.com/maps?saddr=
+          {call .addressLine}
+              {param address: $originAddress /}
+          {/call}
+          &daddr=
+          {call .addressLine}
+              {param address: $pollingLocation.address /}
+          {/call}">
+        {msg desc="Link text for directions"}directions{/msg}
+      </a>
+    {/if}
+  </div>
+{/template}
+
+/**
+ * Render polling place for info window.
+ * @param normalizedInput Polling location information.
+ * @param? showChangeLink Whether or not to show the change link.
+ */
+{template .normalizedAddress autoescape="contextual"}
+    <div class="{css normalized-address}">
       <h4>
         {msg desc="Title for section that shows user address."}
-          Your Official Address:
+          Your Official Address
         {/msg}
       </h4>
       <div class="{css normalized-address-line}">{$normalizedInput.line1}</div>
@@ -50,67 +319,29 @@
         {if $normalizedInput.state}{$normalizedInput.state}{sp}{/if}
         {if $normalizedInput.zip}{$normalizedInput.zip}{/if}
       </div>
-      <a href="javascript:void(0)" class="{css change-address-link}">
-        {msg desc="Link text for link to change address. Displayed next to the address itself."}
-          change
-        {/msg}
-      </a>
+      {if $showChangeLink}
+        <a href="javascript:void(0)" class="{css change-address-link}">
+          {msg desc="Link text for link to change address. Displayed next to the address itself."}
+            change
+          {/msg}
+        </a>
+      {/if}
     </div>
-    // TODO(jmwaura): Re-enable once early vote is implemented.
-    {if 0}
-      <div class="{css early-vote-prompt} {css voter-info-section}">
-        <div class="{css early-vote-prompt-text}">
-          {msg desc="Prompt for user to look up their early vote information"}
-            Want to beat the crowds?
-          {/msg}
-        </div>
-        <a href="#" class="{css early-vote-prompt-link}">
-          {msg desc="Link text for early polling location lookup."}
-            See early polling locations near you
-          {/msg}
-        </a>
-      </div>
-    {/if}
-    {if $pollingLocation}
-      <div class="{css polling-location-section} {css voter-info-section}">
-        <h4>
-          {msg desc="Title for section that contains polling place information"}
-            Your Official Election Day Polling Place:
-          {/msg}
-        </h4>
-        <a href="{$mapUrl}" target="_blank" class="{css polling-location-map}">
-          <img class="{css polling-location-static-map-image}" src="{$staticMapUrl}"/>
-        </a>
-        <div class="{css polling-location-text}">
-          {if $pollingLocation.pollingHours}
-            <div class="{css polling-location-hours}">{$pollingLocation.pollingHours}</div>
-          {/if}
-          {if $pollingLocation.address.locationName}
-            <div class="{css polling-location-name}">{$pollingLocation.address.locationName}</div>
-          {/if}
-          <a href="{$mapUrl}" target="_blank" class="{css polling-location-address}">
-            <div class="{css polling-location-line}">{$pollingLocation.address.line1}</div>
-            {if $pollingLocation.address.line2}
-              <div class="{css polling-location-line}">{$pollingLocation.address.line2}</div>
-            {/if}
-            {if $pollingLocation.address.line3}
-              <div class="{css polling-location-line}">{$pollingLocation.address.line3}</div>
-            {/if}
-            <div class="{css polling-location-line}">
-              {$pollingLocation.address.city},{sp}
-              {$pollingLocation.address.state}{sp}
-              {$pollingLocation.address.zip}
-            </div>
-          </a>
-          {if $pollingLocation.instructions}
-            <div class="{css polling-location-instructions}">{$pollingLocation.instructions}</div>
-          {/if}
-          <div><cite>maps.google.com</cite></div>
-          <a href="{$directionsUrl}" target="_blank" class="{css polling-location-directions}">
-            {msg desc="Link text displayed next to an address"}Get directions{/msg}
-          </a>
-        </div>
-      </div>
-    {/if}
-  </div>
+{/template}
+
+/**
+ * Render polling place for info window.
+ * @param address Polling location information.
+ */
+{template .addressLine autoescape="contextual"}
+  {$address.line1}
+  {if $address.line2}
+    , {$address.line2}
+  {/if}
+  {if $address.line3}
+    , {$address.line3}
+  {/if}
+  ,{sp}
+  {$address.city},{sp}
+  {$address.state}
 {/template}

@@ -22,8 +22,8 @@ goog.provide('vit.component.Polling');
 
 goog.require('goog.dom');
 goog.require('goog.dom.classes');
-goog.require('goog.ui.Component');
 goog.require('vit.component.AddressDialog');
+goog.require('vit.component.Component');
 goog.require('vit.component.PollingInfo');
 
 
@@ -34,7 +34,7 @@ goog.require('vit.component.PollingInfo');
  * @param {vit.context.Context} context The application context.
  * @param {goog.dom.DomHelper=} opt_domHelper DOM helper to use.
  *
- * @extends {goog.ui.Component}
+ * @extends {vit.component.Component}
  * @constructor
  */
 vit.component.Polling = function(context, opt_domHelper) {
@@ -47,7 +47,7 @@ vit.component.Polling = function(context, opt_domHelper) {
    */
   this.context_ = context;
 };
-goog.inherits(vit.component.Polling, goog.ui.Component);
+goog.inherits(vit.component.Polling, vit.component.Component);
 
 
 /** @override */
@@ -144,14 +144,14 @@ vit.component.Polling.prototype.renderAddressDialog_ = function() {
 
 /**
  * Dispose of both pollingInfo and addressDialog components.
- * @param {Array.<goog.ui.Component>=} children Children to dispose.
+ * @param {Array.<vit.component.Component>=} children Children to dispose.
  * @private
  */
 vit.component.Polling.prototype.disposeChildren_ = function(children) {
   if (!children) {
     return;
   }
-  goog.array.forEach(/** @type {Array.<goog.ui.Component>} */ (children),
+  goog.array.forEach(/** @type {Array.<vit.component.Component>} */ (children),
       function(child) {
         child.dispose();
       }

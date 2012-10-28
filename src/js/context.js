@@ -199,6 +199,12 @@ vit.context.NOTICE = 'notice';
 
 
 /**
+ * The referring page or parent iframe.
+ */
+vit.context.REFERRER = 'referrer';
+
+
+/**
  * Type of notice.
  * @enum {string}
  */

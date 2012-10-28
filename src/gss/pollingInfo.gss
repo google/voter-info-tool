@@ -30,8 +30,114 @@
 }
 
 .voter-info-section {
-  margin: 4px 0 8px;
+  border-bottom: STANDARD_RULE;
+  margin: 0;
   overflow: auto;
+  padding: 4px 0;
+}
+
+.zippy-header {
+  overflow: hidden;
+  cursor: pointer;
+  outline: none;
+}
+
+.zippy-content {
+  @mixin box_sizing(border-box);
+  height: 200px;
+  margin-left: 16px;
+  padding-top: 5px;
+  overflow: auto;
+}
+
+.location-list {
+  border-top: STANDARD_RULE;
+  border-bottom: STANDARD_RULE;
+  outline: none;
+}
+
+.zippy-header-title {
+  display: block;
+  margin-left: 16px;
+  font-weight: bold;
+}
+
+.expanded .zippy-header-title {
+  color: RED_TEXT_COLOR;
+}
+
+.zippy-header-prompt {
+  display: block;
+  font-size: SECONDARY_TEXT_SIZE;
+  margin-left: 16px;
+  color: GREY_TEXT_COLOR;
+}
+
+.if-expanded {
+  display: none;
+}
+
+.expanded .if-collapsed {
+  display: none;
+}
+
+.expanded .if-expanded {
+  display: inherit;
+}
+
+.zippy-arrow {
+  background-position: ICONS_ZIPPY_ARROW_COLLAPSED_BG_POS;
+  float: left;
+  height: ICONS_ZIPPY_ARROW_COLLAPSED_HEIGHT;
+  width: ICONS_ZIPPY_ARROW_COLLAPSED_WIDTH;
+}
+
+.expanded .zippy-arrow {
+  background-position: ICONS_ZIPPY_ARROW_EXPANDED_BG_POS;
+  height: ICONS_ZIPPY_ARROW_EXPANDED_HEIGHT;
+  width: ICONS_ZIPPY_ARROW_EXPANDED_WIDTH;
+}
+
+.polling-location-item {
+  border-bottom: STANDARD_RULE;
+  color: GREY_TEXT_COLOR;
+  cursor: default;
+  padding: 5px 10px 5px 0;
+}
+
+.polling-location-item:last-child {
+  border-bottom: none;
+}
+
+.polling-location-item.goog-tab-hover {
+  background-color: DARKISH_BACKGROUND_COLOR;
+}
+
+.polling-location-item.goog-tab-selected {
+  background-color: DARK_BACKGROUND_COLOR;
+}
+
+.polling-location-distance {
+  color: GREY_TEXT_COLOR;
+  font-size: SECONDARY_TEXT_SIZE;
+  white-space: nowrap;
+}
+
+.polling-location-compact {
+  font-size: BODY_TEXT_SIZE;
+  overflow: hidden;
+}
+
+.line {
+  display: block;
+}
+
+.polling-location-compact .name {
+  font-weight: bold;
+}
+
+.polling-location-compact .hours, .polling-location-compact .notes{
+  font-size: SECONDARY_TEXT_SIZE;
 }
 
 .polling-location-section h4 {
@@ -50,4 +156,29 @@
 
 .polling-location-address:link {
   text-decoration: underline;
+}
+
+.polling-pin-icon {
+  background-position: ICONS_LOCATION_PIN_POINT_21_RED_BG_POS;
+  float: left;
+  height: ICONS_LOCATION_PIN_POINT_21_RED_HEIGHT;
+  margin: 3px;
+  width: ICONS_LOCATION_PIN_POINT_21_RED_WIDTH;
+}
+
+.polling-location-info-window {
+  font-size: BODY_TEXT_SIZE;
+  overflow: hidden;
+}
+
+.polling-location-info-window .name {
+  font-weight: bold;
+}
+
+.polling-location-info-window .hours, .polling-location-info-window .notes{
+  font-size: SECONDARY_TEXT_SIZE;
+}
+
+.polling-location-info-window .directions-link {
+  float: right;
 }

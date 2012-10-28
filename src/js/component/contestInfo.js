@@ -22,9 +22,9 @@ goog.provide('vit.component.ContestInfo');
 
 goog.require('goog.soy');
 goog.require('goog.ui.AdvancedTooltip');
-goog.require('goog.ui.Component');
 goog.require('goog.ui.Component.EventType');
 goog.require('vit.api.CivicInfo');
+goog.require('vit.component.Component');
 goog.require('vit.component.ScrollingTabBar');
 goog.require('vit.context.Context');
 goog.require('vit.templates.candidates');
@@ -38,7 +38,7 @@ goog.require('vit.util');
  * @param {vit.context.Context} context The application context.
  * @param {goog.dom.DomHelper=} opt_domHelper DOM helper to use.
  *
- * @extends {goog.ui.Component}
+ * @extends {vit.component.Component}
  * @constructor
  */
 vit.component.ContestInfo = function(context, opt_domHelper) {
@@ -86,7 +86,7 @@ vit.component.ContestInfo = function(context, opt_domHelper) {
    */
   this.hoverCard_;
 };
-goog.inherits(vit.component.ContestInfo, goog.ui.Component);
+goog.inherits(vit.component.ContestInfo, vit.component.Component);
 
 
 /** @override */

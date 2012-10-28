@@ -26,7 +26,7 @@
 @def LARGE_HEADER_SIZE 40px;
 
 .header {
-  border-bottom: STANDARD_BORDER;
+  border-bottom: STANDARD_RULE;
   overflow: hidden;
 }
 

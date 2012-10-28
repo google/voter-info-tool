@@ -21,7 +21,7 @@
 goog.provide('vit.component.Contest');
 
 goog.require('goog.soy');
-goog.require('goog.ui.Component');
+goog.require('vit.component.Component');
 goog.require('vit.component.ContestInfo');
 
 
@@ -32,7 +32,7 @@ goog.require('vit.component.ContestInfo');
  * @param {vit.context.Context} context The application context.
  * @param {goog.dom.DomHelper=} opt_domHelper DOM helper to use.
  *
- * @extends {goog.ui.Component}
+ * @extends {vit.component.Component}
  * @constructor
  */
 vit.component.Contest = function(context, opt_domHelper) {
@@ -52,7 +52,7 @@ vit.component.Contest = function(context, opt_domHelper) {
    */
   this.contestInfo_;
 };
-goog.inherits(vit.component.Contest, goog.ui.Component);
+goog.inherits(vit.component.Contest, vit.component.Component);
 
 
 /** @override */

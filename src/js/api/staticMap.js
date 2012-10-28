@@ -15,7 +15,7 @@
  */
 
 /**
- * @fileoverview Simplified interface for Google API Javascript Client.
+ * @fileoverview Utility for simple generation of static maps urls.
  * @author jmwaura@google.com (Jesse Mwaura)
  */
 

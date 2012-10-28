@@ -53,8 +53,29 @@
   background-color: VERY_DARK_BACKGROUND;
   color: TEXT_ON_VERY_DARK_BACKGROUND;
   font-size: SECONDARY_TEXT_SIZE;
+  overflow: hidden;
   padding: 4px;
   text-align: center;
+}
+
+
+.footer .privacy-terms {
+  float: right;
+  padding-left: 1em;
+}
+
+.footer .privacy-terms a {
+  color: TEXT_ON_VERY_DARK_BACKGROUND;
+  text-decoration: none;
+}
+
+.footer .privacy-terms a:hover {
+  color: TEXT_ON_VERY_DARK_BACKGROUND;
+  text-decoration: underline;
+}
+
+.footer .privacy-terms a:visited {
+  color: TEXT_ON_VERY_DARK_BACKGROUND;
 }
 
 @media screen and (min-width:600px) {

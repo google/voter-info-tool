@@ -21,7 +21,7 @@
 goog.provide('vit.component.Leo');
 
 goog.require('goog.dom');
-goog.require('goog.ui.Component');
+goog.require('vit.component.Component');
 goog.require('vit.context');
 goog.require('vit.templates.leo');
 
@@ -33,7 +33,7 @@ goog.require('vit.templates.leo');
  * @param {vit.context.Context} context The application context.
  * @param {goog.dom.DomHelper=} opt_domHelper DOM helper to use.
  *
- * @extends {goog.ui.Component}
+ * @extends {vit.component.Component}
  * @constructor
  */
 vit.component.Leo = function(context, opt_domHelper) {
@@ -53,7 +53,7 @@ vit.component.Leo = function(context, opt_domHelper) {
    */
   this.subscriptionId_;
 };
-goog.inherits(vit.component.Leo, goog.ui.Component);
+goog.inherits(vit.component.Leo, vit.component.Component);
 
 
 /** @override */
@@ -85,7 +85,7 @@ vit.component.Leo.prototype.handleCivicInfo_ = function(civicInfo) {
   /**
    * @type {?vit.component.Leo.LeoInfo}
    */
-  var leo = this.getLeo_(local.electionAdministrationBody);
+  var leo = local && this.getLeo_(local.electionAdministrationBody) || null;
   if (!leo) {
     leo = this.getLeo_(region.electionAdministrationBody);
   }

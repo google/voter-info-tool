@@ -22,6 +22,7 @@
 
 body {
   font: BODY_TEXT_SIZE "Arial", "Helvetica", sans-serif;
+  margin: 0;
 }
 
 h1, h2, h3, h4, strong, b {
@@ -81,7 +82,7 @@ input[type="text"]:focus {
 
 cite {
   color: #093;
-  font-size: LARGE_SECONDARY_TEXT_SIZE;
+  font-size: SECONDARY_TEXT_SIZE;
   font-style: normal;
 }
 
@@ -121,20 +122,8 @@ cite {
 }
 
 @media screen and (min-width:800px) {
-  body {
-    font-size: LARGE_BODY_TEXT_SIZE;
-  }
-
   h3 {
     font-size: LARGE_TITLE_TEXT_SIZE;
-  }
-
-  h4 {
-    font-size: LARGE_BODY_TEXT_SIZE;
-  }
-
-  .secondary-text {
-    font-size: LARGE_SECONDARY_TEXT_SIZE;
   }
 }
 
@@ -142,6 +131,10 @@ cite {
   background-image: ICONS_DATAURI;
   background-repeat: no-repeat;
   background-color: transparent;
+}
+
+.hidden {
+  visibility: hidden;
 }
 
 @def PLACEHOLDER_IMG url("data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\"><g fill=\"none\"><path vector-effect=\"non-scaling-stroke\" stroke=\"#999\" stroke-width=\"2\" d=\"M0 0 l100 100 M100 0 l-100 100 M0 0 l0 100 l100 0 l0 -100 l-100 0\" /></g></svg>");

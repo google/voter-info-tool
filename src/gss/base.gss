@@ -23,4 +23,5 @@
 .base {
   border: STANDARD_BORDER;
   max-width: TOOL_MAX_WIDTH;
+  position: relative;
 }

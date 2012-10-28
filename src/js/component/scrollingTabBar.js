@@ -22,9 +22,9 @@ goog.provide('vit.component.ScrollingTabBar');
 
 goog.require('goog.soy');
 goog.require('goog.ui.Button');
-goog.require('goog.ui.Component');
 goog.require('goog.ui.Component.EventType');
 goog.require('goog.ui.TabBar');
+goog.require('vit.component.Component');
 goog.require('vit.util');
 
 
@@ -33,7 +33,7 @@ goog.require('vit.util');
  *
  * @param {goog.dom.DomHelper=} opt_domHelper DOM helper to use.
  *
- * @extends {goog.ui.Component}
+ * @extends {vit.component.Component}
  * @constructor
  */
 vit.component.ScrollingTabBar = function(opt_domHelper) {
@@ -68,7 +68,7 @@ vit.component.ScrollingTabBar = function(opt_domHelper) {
    */
   this.rightButton_;
 };
-goog.inherits(vit.component.ScrollingTabBar, goog.ui.Component);
+goog.inherits(vit.component.ScrollingTabBar, vit.component.Component);
 
 
 /**

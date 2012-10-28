@@ -15,21 +15,18 @@
  */
 
 /**
- * Template for base component.
+ * Style rules for large map component.
  *
  * @author jmwaura@google.com (Jesse Mwaura)
  */
 
-{namespace vit.templates}
-
-/**
- * Draw base layout with containers for each component.
- */
-{template .base autoescape="contextual"}
-  <div class="{css base}">
-    {call .header /}
-    {call .alertContainer /}
-    {call .content /}
-    {call .footer data="all" /}
-  </div>
-{/template}
+.large-map {
+  background-color: #a4bedc;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}

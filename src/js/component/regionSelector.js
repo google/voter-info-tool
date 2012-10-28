@@ -24,9 +24,9 @@ goog.require('goog.Uri.QueryData');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.classes');
-goog.require('goog.ui.Component');
 goog.require('vit.api');
 goog.require('vit.api.StaticMap');
+goog.require('vit.component.Component');
 goog.require('vit.context');
 
 
@@ -37,7 +37,7 @@ goog.require('vit.context');
  * @param {vit.context.Context} context The application context.
  * @param {goog.dom.DomHelper=} opt_domHelper DOM helper to use.
  *
- * @extends {goog.ui.Component}
+ * @extends {vit.component.Component}
  * @constructor
  */
 vit.component.RegionSelector = function(context, opt_domHelper) {
@@ -57,7 +57,7 @@ vit.component.RegionSelector = function(context, opt_domHelper) {
    */
    this.currentRegion_ = null;
 };
-goog.inherits(vit.component.RegionSelector, goog.ui.Component);
+goog.inherits(vit.component.RegionSelector, vit.component.Component);
 
 
 /**

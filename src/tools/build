@@ -23,6 +23,7 @@ closure_lib_dir=$VIT_CLOSURE_LIB_DIR
 soy_lib_dir=$VIT_SOY_LIB_DIR
 analytics_api_key=$VIT_ANALYTICS_API_KEY
 google_api_key=$VIT_GOOGLE_API_KEY
+url=$VIT_URL
 
 # Do not use advanced optimizations by default
 opt=false
@@ -76,8 +77,7 @@ Usage: `basename $0` [options]
                           Overrides \$VIT_SOY_COMPILER_JAR
     --gss_compiler_jar    Path to jar for gss compiler.
                           Overrides \$VIT_GSS_COMPILER_JAR
-    --closure_lib_dir     Path to directory containing base.js from the closure
-                          library.
+    --closure_lib_dir     Path to directory containing the closure library.
                           Overrides \$VIT_CLOSURE_LIB_DIR
     --soy_lib_dir         Path to directory containing closure templates base
                           library.
@@ -86,6 +86,8 @@ Usage: `basename $0` [options]
                           Overrides \$VIT_ANALYTICS_API_KEY
     --google_api_key      Api key for Google APIs.
                           Overrides \$VIT_GOOGLE_API_KEY
+    --url                 The URL at which the tool will be available.
+                          Overrides \$VIT_URL
     --opt                 When set, use advanced optimizations in js compiler
 EOF
 }
@@ -135,6 +137,7 @@ while true; do
     --soy_lib_dir ) soy_lib_dir=$2; shift 2 ;;
     --analytics_api_key ) analytics_api_key=$2; shift 2 ;;
     --google_api_key ) google_api_key=$2; shift 2 ;;
+    --url ) url=$2; shift 2 ;;
     --opt ) opt=true; shift ;;
     -- ) shift; break ;;
     * ) break ;;
@@ -169,7 +172,8 @@ javac -d $BUILD_ROOT/$TOOL_BUILD_PATH -classpath $soy_compiler_jar $SRC_ROOT/$TO
 
 # Generate CSS
 echo "Generating CSS from GSS files..."
-java -jar $gss_compiler_jar $SRC_ROOT/$GSS_SRC_PATH/*.gss > $BUILD_ROOT/$GSS_BUILD_PATH/vit.css
+find $SRC_ROOT/$GSS_SRC_PATH -name '*.gss' | xargs java -jar $gss_compiler_jar \
+  --output-file $BUILD_ROOT/$GSS_BUILD_PATH/vit.css
 css_md5=$(get_hash $BUILD_ROOT/$GSS_BUILD_PATH/vit.css)
 readonly GSS_OUTPUT_FILENAME="vit-$css_md5.css"
 echo "Writing generated CSS to $GSS_BUILD_PATH/$GSS_OUTPUT_FILENAME ..."
@@ -182,9 +186,9 @@ java -classpath $BUILD_ROOT/$TOOL_BUILD_PATH:$soy_compiler_jar CompileSoy --soyF
 
 # Compile JS. Highlight any warnings that are from VIT source.
 echo "Compiling JS..."
-$closure_lib_dir/closure/bin/calcdeps.py -i $SRC_ROOT/$JS_SRC_PATH/vit.js -p $SRC_ROOT/$JS_SRC_PATH -p $BUILD_ROOT/$SOY_BUILD_PATH -p $closure_lib_dir/closure -p $soy_lib_dir -o compiled \
+$closure_lib_dir/closure/bin/calcdeps.py -i $SRC_ROOT/$JS_SRC_PATH/vit.js -p $SRC_ROOT/$JS_SRC_PATH -p $BUILD_ROOT/$SOY_BUILD_PATH -p $closure_lib_dir -p $soy_lib_dir -o compiled \
   --compiler_jar=$js_compiler_jar \
-  -f "--compilation_level=ADVANCED_OPTIMIZATIONS" \
+  -f "--compilation_level=SIMPLE_OPTIMIZATIONS" \
   -f "--warning_level=VERBOSE" \
   -f "--externs=$SRC_ROOT/$EXTERNS_PATH/externs.js" \
   -f "--define=vit.api.API_KEY='$google_api_key'" \
@@ -196,11 +200,37 @@ echo "Appending source map..."
 echo "//@ sourceMappingURL=./vit.js.map" >> $BUILD_ROOT/$JS_BUILD_PATH/vit.js
 
 # Generate HTML.
-echo "Generating index.html from SOY files..."
+echo "Generating vit.html from SOY files..."
 relative_closure_lib_path="$(relative_path $BUILD_ROOT $closure_lib_dir)"
 java -classpath $BUILD_ROOT/$TOOL_BUILD_PATH:$soy_compiler_jar CompileSoy --soyFiles=$SRC_ROOT/$SOY_SRC_PATH --template=vit.templates.page \
   --outputType=html \
   -- \
   --cssPath=$GSS_BUILD_PATH/$GSS_OUTPUT_FILENAME \
   --scriptSource="js/vit.js" \
-  --apiKey=$google_api_key > $BUILD_ROOT/index.html
+  --apiKey=$google_api_key > $BUILD_ROOT/vit.html
+
+
+# Compile JS. Highlight any warnings that are from VIT source.
+echo "Compiling loader JS..."
+$closure_lib_dir/closure/bin/calcdeps.py -i $SRC_ROOT/$JS_SRC_PATH/loader.js -p $SRC_ROOT/$JS_SRC_PATH -p $BUILD_ROOT/$SOY_BUILD_PATH -p $closure_lib_dir -p $soy_lib_dir -o compiled \
+  --compiler_jar=$js_compiler_jar \
+  -f "--compilation_level=ADVANCED_OPTIMIZATIONS" \
+  -f "--warning_level=VERBOSE" \
+  -f "--externs=$SRC_ROOT/$EXTERNS_PATH/externs.js" \
+  -f "--define=vit.Loader.TOOL_URL='$url'" \
+  -f "--create_source_map=$BUILD_ROOT/$JS_BUILD_PATH/loader.js.map" \
+  -f "--source_map_format=V3" \
+  -f "--output_wrapper='(function() {%output%})();'" \
+  --output_file=$BUILD_ROOT/$JS_BUILD_PATH/loader.js 2>&1 | grep -E --color "^$SRC_ROOT/$JS_SRC_PATH.+|\$"
+
+# echo "Appending source map..."
+# echo "//@ sourceMappingURL=./loader.js.map" >> $BUILD_ROOT/$JS_BUILD_PATH/loader.js
+
+# Generate HTML.
+echo "Generating index.html from SOY files..."
+relative_closure_lib_path="$(relative_path $BUILD_ROOT $closure_lib_dir)"
+java -classpath $BUILD_ROOT/$TOOL_BUILD_PATH:$soy_compiler_jar CompileSoy --soyFiles=$SRC_ROOT/$SOY_SRC_PATH --template=vit.templates.host \
+  --outputType=html \
+  -- \
+  --cssPath=$GSS_BUILD_PATH/$GSS_OUTPUT_FILENAME \
+  --loaderSource="js/loader.js" > $BUILD_ROOT/index.html

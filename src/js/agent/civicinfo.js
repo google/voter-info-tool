@@ -27,6 +27,14 @@ goog.require('vit.api.CivicInfo');
 goog.require('vit.api.CivicInfo.Status');
 goog.require('vit.context.Context');
 goog.require('vit.context.NoticeType');
+goog.require('vit.templates.errors.addressUnparseable');
+goog.require('vit.templates.errors.electionOver');
+goog.require('vit.templates.errors.electionUnknown');
+goog.require('vit.templates.errors.genericFailure');
+goog.require('vit.templates.errors.multipleSegments');
+goog.require('vit.templates.errors.noStreetSegment');
+goog.require('vit.templates.errors.suggestOfficial');
+goog.require('vit.templates.errors.testElection');
 
 
 
@@ -110,12 +118,11 @@ vit.agent.CivicInfo.prototype.init = function() {
 vit.agent.CivicInfo.prototype.handleAddressChange_ =
     function(trigger, newAddress, oldAddress) {
   newAddress = /** @type {string} */ (newAddress) || '';
-  if (!newAddress || newAddress == oldAddress) {
-    return;
+  if (newAddress) {
+    this.api_.lookup(newAddress,
+        goog.bind(this.handleApiResponse_, this, trigger)
+    );
   }
-  this.api_.lookup(newAddress,
-      goog.bind(this.handleApiResponse_, this, trigger)
-  );
 };
 
 
@@ -136,30 +143,22 @@ vit.agent.CivicInfo.prototype.handleApiResponse_ =
     return;
   }
   var resultStatus = result.status;
+  var notice = null;
   if (resultStatus != vit.api.CivicInfo.Status.SUCCESS) {
     if (!(resultStatus == vit.api.CivicInfo.Status.ADDRESS_UNPARSEABLE &&
         trigger == vit.context.REGION)) {
       if (goog.object.containsKey(vit.agent.CivicInfo.noticeMap,
           resultStatus)) {
-        this.context_.set(vit.context.NOTICE,
-            vit.agent.CivicInfo.noticeMap[resultStatus](result));
+        notice = vit.agent.CivicInfo.noticeMap[resultStatus](result);
       } else {
-        this.context_.set(vit.context.NOTICE,
-            vit.agent.CivicInfo.generateMsgGenericFailure(result));
+        notice = vit.agent.CivicInfo.generateMsgGenericFailure(result);
       }
-      this.context_.set(vit.context.CIVIC_INFO, null);
-      return;
     }
   }
   if (result.election.name.search(/(^| )test( |$)/i) >= 0) {
-    this.context_.set(vit.context.NOTICE,
-            vit.agent.CivicInfo.generateMsgTestElection(result));
-  } else {
-    // TODO(jmwaura): Remove this when we're ready to go live.
-    this.context_.set(vit.context.NOTICE,
-            vit.agent.CivicInfo.generateMsgTestElection(result));
-    //this.context_.set(vit.context.NOTICE, null);
+    notice = vit.agent.CivicInfo.generateMsgTestElection(result);
   }
+  this.context_.set(vit.context.NOTICE, notice);
   // Set the request trigger on the response.
   result.requestTrigger = trigger;
   this.context_.set(vit.context.CIVIC_INFO, result);
@@ -187,33 +186,17 @@ vit.agent.CivicInfo.prototype.disposeInternal = function() {
  * @return {string} The official website suggestion.
  */
 vit.agent.CivicInfo.suggestOfficialWebsite = function(response) {
+  var params = {};
   if (response && response.state && response.state[0] &&
       response.state[0].electionAdministrationBody &&
       response.state[0].electionAdministrationBody.name &&
       response.state[0].electionAdministrationBody.votingLocationFinderUrl) {
-    var leo = '<a href="' +
-        goog.string.htmlEscape(response.state[0]
-            .electionAdministrationBody.votingLocationFinderUrl) +
-        '">' +
-        goog.string.htmlEscape(response.state[0]
-            .electionAdministrationBody.name) +
-        '</a>';
-    /**
-     * @desc Suggestion for where the user can get their voting information.
-     *     This text appears as part of an error message.
-     */
-    var MSG_ERR_SUGG_URL = goog.getMsg('Check the {$electionOfficial} ' +
-        'website for complete voter information.', {'electionOfficial': leo});
-    return MSG_ERR_SUGG_URL;
-  } else {
-    /**
-     * @desc Suggestion for where the user can get their voting information.
-     *     This text appears as part of an error message.
-     */
-    var MSG_ERR_SUGG = goog.getMsg('Contact your local election official ' +
-        'for complete voter information.');
-    return MSG_ERR_SUGG;
+    params = {
+      url: response.state[0].electionAdministrationBody.votingLocationFinderUrl,
+      electionOfficial: response.state[0].electionAdministrationBody.name
+    };
   }
+  return vit.templates.errors.suggestOfficial(params);
 };
 
 /**
@@ -238,13 +221,8 @@ vit.agent.CivicInfo.generateMsg = function(type, text, response) {
  * @return {vit.context.Notice} The notice.
  */
 vit.agent.CivicInfo.generateMsgGenericFailure = function(response) {
-  /** @desc Error message from a lookup failure. */
-  var MSG_ERR_GENERIC = goog.getMsg('We encountered an error and could not ' +
-      'complete your request. If the problem persists, please report your ' +
-      'problem and mention this error message and the query that caused it. ' +
-      'That\'s all we know.');
   return vit.agent.CivicInfo.generateMsg(vit.context.NoticeType.ERROR,
-    MSG_ERR_GENERIC, response);
+    vit.templates.errors.genericFailure(), response);
 };
 
 
@@ -254,11 +232,8 @@ vit.agent.CivicInfo.generateMsgGenericFailure = function(response) {
  * @return {vit.context.Notice} The notice.
  */
 vit.agent.CivicInfo.generateMsgNoStreetSegmentFound = function(response) {
-  /** @desc Error message from a lookup failure. */
-  var MSG_ERR_NO_SEG = goog.getMsg('We were unable to find the voting ' +
-      'information for your address.');
   return vit.agent.CivicInfo.generateMsg(vit.context.NoticeType.INFO,
-    MSG_ERR_NO_SEG, response);
+    vit.templates.errors.noStreetSegment(), response);
 };
 
 
@@ -268,12 +243,8 @@ vit.agent.CivicInfo.generateMsgNoStreetSegmentFound = function(response) {
  * @return {vit.context.Notice} The notice.
  */
 vit.agent.CivicInfo.generateMsgAddressUnparseable = function(response) {
-  /** @desc Error message from a lookup failure. */
-  var MSG_ERR_UNPARSEABLE = goog.getMsg('We did not understand your ' +
-    'address. Please make sure it is spelled correctly and includes a city ' +
-    'and state.');
   return vit.agent.CivicInfo.generateMsg(vit.context.NoticeType.ERROR,
-    MSG_ERR_UNPARSEABLE, response);
+    vit.templates.errors.addressUnparseable(), response);
 };
 
 
@@ -285,11 +256,8 @@ vit.agent.CivicInfo.generateMsgAddressUnparseable = function(response) {
  */
 vit.agent.CivicInfo.generateMsgMultipleStreetSegmentsFound =
     function(response) {
-  /** @desc Error message from a lookup failure. */
-  var MSG_ERR_MULT_SEG = goog.getMsg('We were unable to find accurate ' +
-    'information for your address.');
   return vit.agent.CivicInfo.generateMsg(vit.context.NoticeType.ERROR,
-    MSG_ERR_MULT_SEG, response);
+    vit.templates.errors.multipleSegments(), response);
 };
 
 
@@ -299,26 +267,16 @@ vit.agent.CivicInfo.generateMsgMultipleStreetSegmentsFound =
  * @return {vit.context.Notice} The notice.
  */
 vit.agent.CivicInfo.generateMsgElectionOver = function(response) {
-  var message = '';
+  var params = {};
   if (response && response.election && response.election.name &&
       response.election.electionDay) {
-    /** @desc Error message from a lookup failure. */
-    var MSG_ERR_OVER_INFO = goog.getMsg('The election "{$name}" took place ' +
-        'on {$date}. Voter information is no longer available for this ' +
-        'election.',
-        {
-          'name': response.election.name,
-          'date': response.election.electionDay
-        });
-    message = MSG_ERR_OVER_INFO;
-  } else {
-    /** @desc Error message from a lookup failure. */
-    var MSG_ERR_OVER = goog.getMsg('The election has already taken place. ' +
-        'Voter information is no longer available.');
-    message = MSG_ERR_OVER;
+    params = {
+      name: response.election.name,
+      date: response.election.electionDay
+    };
   }
   return vit.agent.CivicInfo.generateMsg(vit.context.NoticeType.INFO,
-    message, response);
+    vit.templates.errors.electionOver(params), response);
 };
 
 
@@ -328,12 +286,8 @@ vit.agent.CivicInfo.generateMsgElectionOver = function(response) {
  * @return {vit.context.Notice} The notice.
  */
 vit.agent.CivicInfo.generateMsgElectionUnknown = function(response) {
-  /** @desc Error message from a lookup failure. */
-  var MSG_ERR_UNKNOWN = goog.getMsg('This application has been configured ' +
-    'incorrectly. If you maintain the application, please make sure you ' +
-    'are providing a valid election id.');
   return vit.agent.CivicInfo.generateMsg(vit.context.NoticeType.WARNING,
-    MSG_ERR_UNKNOWN, response);
+    vit.templates.errors.electionUnknown(), response);
 };
 
 
@@ -343,10 +297,8 @@ vit.agent.CivicInfo.generateMsgElectionUnknown = function(response) {
  * @return {vit.context.Notice} The notice.
  */
 vit.agent.CivicInfo.generateMsgTestElection = function(response) {
-  /** @desc Error message from a lookup failure. */
-  var MSG_ERR_TEST = goog.getMsg('This data is for testing purposes only.');
   return vit.agent.CivicInfo.generateMsg(vit.context.NoticeType.WARNING,
-    MSG_ERR_TEST, response);
+    vit.templates.errors.testElection(), response);
 };
 
 

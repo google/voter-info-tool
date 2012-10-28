@@ -21,7 +21,7 @@
 goog.provide('vit.component.Alert');
 
 goog.require('goog.dom');
-goog.require('goog.ui.Component');
+goog.require('vit.component.Component');
 goog.require('vit.context');
 goog.require('vit.templates.alert');
 
@@ -33,7 +33,7 @@ goog.require('vit.templates.alert');
  * @param {vit.context.Context} context The application context.
  * @param {goog.dom.DomHelper=} opt_domHelper DOM helper to use.
  *
- * @extends {goog.ui.Component}
+ * @extends {vit.component.Component}
  * @constructor
  */
 vit.component.Alert = function(context, opt_domHelper) {
@@ -53,7 +53,7 @@ vit.component.Alert = function(context, opt_domHelper) {
    */
   this.subscriptionId_;
 };
-goog.inherits(vit.component.Alert, goog.ui.Component);
+goog.inherits(vit.component.Alert, vit.component.Component);
 
 
 /** @override */

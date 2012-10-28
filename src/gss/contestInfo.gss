@@ -49,18 +49,9 @@
   text-align: center;
 }
 
-.candidate-table {
-  border-collapse: collapse;
-  border-top: STANDARD_BORDER;
-  width: 100%;
-}
-
-.candidate-table td {
-  padding: 0;
-}
-
 .candidate {
-  border-bottom: STANDARD_BORDER;
+  border-bottom: STANDARD_RULE;
+  overflow: hidden;
 }
 
 .candidate a,  .candidate a:link, .candidate a:visited, .candidate a:hover {
@@ -76,7 +67,7 @@
 .candidate-btn {
   display: block;
   float: left;
-  height: 16px;
+  min-height: 16px;
   line-height: 16px;
   margin-right: 4px;
 }
@@ -119,8 +110,9 @@
 }
 
 .candidate-party {
-  font-size: SECONDARY_TEXT_SIZE;
   color: GREY_TEXT_COLOR;
+  float: right;
+  font-size: SECONDARY_TEXT_SIZE;
   max-width: 300px;
   text-align: right;
 }
@@ -139,7 +131,7 @@
  * Do not change this class before reading through
  * js/component/scrollingTabBar.js
  */
-.goog-tab-bar{
+.contest-tab-bar{
   border: none;
   height: TAB_HEIGHT;
   margin: none;
@@ -153,8 +145,8 @@
  * Do not change this class before reading through
  * js/component/scrollingTabBar.js
  */
-.goog-tab {
-  border-right: STANDARD_BORDER;
+.contest-tab {
+  border-right: STANDARD_RULE;
   @mixin box_sizing(border-box);
   display: inline-block;
   height: TAB_HEIGHT;
@@ -162,7 +154,11 @@
   cursor: default;
 }
 
-.goog-tab-selected {
+.contest-tab.goog-tab-hover {
+  background-color: DARKISH_BACKGROUND_COLOR;
+}
+
+.contest-tab.goog-tab-selected {
   border-bottom: 2px solid VIT_RED;
   color: VIT_RED;
 }
@@ -172,12 +168,11 @@
   height: TAB_HEIGHT;
   margin: 0;
   padding: 0;
-  background: transparent;
 }
 
 .scrolling-tab-bar-right-btn {
   background-position: ICONS_ARROWR_IDLE_BG_POS;
-  border-left: STANDARD_BORDER;
+  border-left: STANDARD_RULE;
   float: right;
   height: ICONS_ARROWR_ACTIVE_HEIGHT;
   margin: sub(0px, TAB_HEIGHT) 0 0 0;
@@ -186,6 +181,7 @@
 
 .scrolling-tab-bar-right-btn.enabled {
   background-position: ICONS_ARROWR_ACTIVE_BG_POS;
+  border-left: STANDARD_BORDER;
   @mixin box_shadow(-2px 0 5px -3px rgba(0, 0, 0, 0.6));
 }
 
@@ -195,7 +191,7 @@
 
 .scrolling-tab-bar-left-btn {
   background-position: ICONS_ARROWL_IDLE_BG_POS;
-  border-right: STANDARD_BORDER;
+  border-right: STANDARD_RULE;
   float: left;
   height: ICONS_ARROWL_ACTIVE_HEIGHT;
   margin: 0 0;
@@ -204,6 +200,7 @@
 
 .scrolling-tab-bar-left-btn.enabled {
   background-position: ICONS_ARROWL_ACTIVE_BG_POS;
+  border-right: STANDARD_BORDER;
   @mixin box_shadow(2px 0 5px -3px rgba(0, 0, 0, 0.6));
 }
 
@@ -212,7 +209,8 @@
 }
 
 .contest-tab-content {
-  height: 300px;
+  border-top: STANDARD_RULE;
+  height: 350px;
   overflow: auto;
 }
 
