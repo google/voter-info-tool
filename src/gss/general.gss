@@ -22,11 +22,12 @@
 
 body {
   font: BODY_TEXT_SIZE "Arial", "Helvetica", sans-serif;
+  color: DARK_TEXT_COLOR;
   margin: 0;
 }
 
 h1, h2, h3, h4, strong, b {
-  color: #000;
+  color: DARK_TEXT_COLOR;
   font-weight: bold;
 }
 
@@ -53,31 +54,6 @@ a:hover {
 
 a:visited {
   color: #15c;
-}
-
-input[type="text"] {
-  background-color: #fff;
-  border-top: 1px solid #bdbdbd;
-  border: 1px solid #d9d9d9;
-  @mixin border_radius(1px);
-  @mixin box_sizing(border-box);
-  color: #333;
-  font-size: 16px;
-  height: TEXTBOX_HEIGHT;
-  line-height: sub(TEXTBOX_HEIGHT, 2px);
-  padding-left: 8px;
-}
-
-input[type="text"]:hover {
-  border: 1px solid #bdbdbd;
-  @mixin box_shadow(inset 0px 1px 2px rgba(0, 0, 0, 0.3));
-  outline: none;
-}
-
-input[type="text"]:focus {
-  border: 1px solid #4d90fe;
-  @mixin box_shadow(inset 0px 1px 2px rgba(0, 0, 0, 0.3));
-  outline: none;
 }
 
 cite {
@@ -137,6 +113,12 @@ cite {
   visibility: hidden;
 }
 
+.transparent-bg {
+  background-color: transparent;
+  background-image: ICONS_TRANSPARENT_DATAURI;
+  background-repeat: repeat;
+}
+
 @def PLACEHOLDER_IMG url("data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\"><g fill=\"none\"><path vector-effect=\"non-scaling-stroke\" stroke=\"#999\" stroke-width=\"2\" d=\"M0 0 l100 100 M100 0 l-100 100 M0 0 l0 100 l100 0 l0 -100 l-100 0\" /></g></svg>");
 .placeholder {
   background: PLACEHOLDER_IMG no-repeat #f1f1f1;
@@ -144,3 +126,5 @@ cite {
   border: 1px solid #999;
   @mixin box_sizing(border-box);
 }
+
+@def LOADING_ANIMATION_DATAURI none;

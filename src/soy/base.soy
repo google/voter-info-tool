@@ -24,10 +24,13 @@
 
 /**
  * Draw base layout with containers for each component.
+ * @param suppressHeader Whether or not to prevent rendering of the header.
  */
 {template .base autoescape="contextual"}
   <div class="{css base}">
-    {call .header /}
+    {if not $suppressHeader}
+      {call .header /}
+    {/if}
     {call .alertContainer /}
     {call .content /}
     {call .footer data="all" /}

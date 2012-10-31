@@ -21,7 +21,9 @@
  */
 
 .base {
+  background-color: #fff;
   border: STANDARD_BORDER;
   max-width: TOOL_MAX_WIDTH;
+  min-width: TOOL_MIN_WIDTH;
   position: relative;
 }

@@ -35,6 +35,10 @@
   position: relative;
 }
 
+.contest-wrapper {
+  @mixin box_sizing(border-box);
+}
+
 /* TODO(jmwaura): #nov7problem This is a horrible hack. Find a better way. */
 @media screen and (min-width:600px) {
   .contest-wrapper {

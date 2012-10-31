@@ -33,14 +33,23 @@
       {/msg}
     </h3>
     <div class="{css address-form}">
-      {msg desc="Label for a textbox that allows the user to look up their voting information."}
-        Enter your address to get started.
-      {/msg}
+      <div class="{css address-prompt-wrapper}">
+        <div class="{css address-loading-indicator}">
+          {msg desc="Label next to a loading indicator that a request is in progress."}
+            Loading...
+          {/msg}
+        </div>
+        <span class="{css address-prompt}">
+          {msg desc="Label for a textbox that allows the user to look up their voting
+              information."}
+            Type the address where you're registered to vote
+          {/msg}
+        </span>
+      </div>
       <div class="{css text-autocomplete-wrapper}">
-        <input
-            class="{css address-autocomplete} {css text-autocomplete} {css text-autocomplete-ghost}"
-            type="text" value="1600 Pennsylvania Ave NW, Washington DC" disabled="disabled"/>
-        <input class="{css address-input} {css text-autocomplete}" type="text" value=""/>
+        <input class="{css address-input} {css text-autocomplete} {css transparent-bg}"/>
+        <input disabled="disabled"
+            class="{css address-hint} {css text-autocomplete} {css transparent-bg}" />
       </div>
       <button class="{css address-search-button} {css action-button}"
           title="{msg desc="Title for search button."}Search{/msg}">

@@ -386,6 +386,9 @@ vit.component.PollingInfo.prototype.formatAllThePollingLocations_ =
  * @private
  */
 vit.component.PollingInfo.prototype.formatAddress_ = function(address) {
+  if (!address) {
+    return address;
+  }
   return /** @type {vit.api.CivicInfo.Address} */ ({
     locationName: address.locationName &&
         vit.util.selectiveTitleCase(address.locationName),
@@ -407,6 +410,9 @@ vit.component.PollingInfo.prototype.formatAddress_ = function(address) {
  * @private
  */
 vit.component.PollingInfo.prototype.formatHours_ = function(hours) {
+  if (!hours) {
+    return hours;
+  }
   return hours.replace(/_/g, '-'); // Yay, DC!
 };
 

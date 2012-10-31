@@ -30,9 +30,11 @@ goog.require('goog.events');
 goog.require('goog.events.EventTarget');
 goog.require('goog.json');
 goog.require('goog.locale');
+goog.require('goog.net.jsloader');
 goog.require('vit.agent.Autocomplete');
 goog.require('vit.agent.CivicInfo');
 goog.require('vit.agent.Xpc');
+goog.require('vit.analytics.Analytics');
 goog.require('vit.component.Component');
 goog.require('vit.component.Page');
 goog.require('vit.context');
@@ -131,6 +133,9 @@ vit.Base.DOCUMENT_CHANGE_DEBOUNCE_TIMEOUT = 100;
  * @return {vit.Base} This instance.
  */
 vit.Base.prototype.init = function() {
+  // Track the page view immediately.
+  vit.analytics.Analytics.getInstance().trackPageview();
+
   this.subscribe(vit.context.CONFIG, this.onConfig_, this);
 
   // Go ahead and start up with defaults after timeout elapses.
@@ -196,6 +201,9 @@ vit.Base.prototype.onConfig_ = function(config) {
   });
 
   vit.util.load(uriList, goog.bind(this.onDepsLoaded_, this));
+
+  // Load analytics. No need to wait until loaded, we'll use async calls anyway.
+  goog.net.jsloader.load('https://ssl.google-analytics.com/ga.js');
 };
 
 

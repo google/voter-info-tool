@@ -263,7 +263,13 @@ vit.api.CivicInfo.prototype.transformPollingLocation = function(obj) {
 
   var out = {};
   out.address = this.transformAddress(obj['address']);
-  out.pollingHours = obj['pollingHours'];
+
+  // TODO(jmwaura): This is a hack to get rid of " - " polling hours.
+  // The number 5 is mostly arbitrary, but anything less than 5 chars is almost
+  // definitely wrong. Prefer false negatives. Fix this.
+  out.pollingHours = (obj['pollingHours'] && obj['pollingHours'].length > 5) ?
+      obj['pollingHours'] : null;
+
   out.name = obj['name'];
   out.notes = obj['notes'];
   out.voterServices = obj['voterServices'];

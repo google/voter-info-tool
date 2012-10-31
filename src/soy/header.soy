@@ -28,12 +28,18 @@
 {template .header autoescape="contextual"}
   <div class="{css header}">
     <div class="{css header-title}">
-      <span class="{css header-logo} {css logo-sprite}"></span>
-      <span class="{css header-text}">
-        {msg desc="Official title for the Google Voter Information Tool"}
-          Voter Information Tool
-        {/msg}
-      </span>
+      <div>
+        <a href="//www.google.com" target="_blank">
+          <span class="{css header-logo} {css logo-sprite}"></span>
+        </a>
+      </div>
+      <div class="{css header-text}">
+        <a href="//www.google.com/elections/ed/us/vote" target="_blank">
+          {msg desc="Official title for the Google Voter Information Tool"}
+            Voter Information
+          {/msg}
+        </a>
+      </div>
     </div>
     <div class="{css header-tools}">
       <div class="{css header-tool-set}">

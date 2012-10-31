@@ -580,3 +580,16 @@ gapi.client.HttpRequest = function() {};
  *     execute when the request returns.
  */
 gapi.client.HttpRequest.prototype.execute = function(callback) {};
+
+
+/**
+ * Asynchronous version of the Google Analytics tracker.
+ */
+var _gaq;
+
+
+/**
+ * Enqueue an analytics command.
+ * @param {...(function()|Array.<Object>)} command The command function or args.
+ */
+_gaq.push = function(command) {};

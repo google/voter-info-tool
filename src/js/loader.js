@@ -54,10 +54,10 @@ vit.Loader = function() {
 
 
 /**
- * The url from which to load the Voter Information Tool
+ * The base url which to load the Voter Information Tool
  * @define {string} Voter Information Tool URL.
  */
-vit.Loader.TOOL_URL = '';
+vit.Loader.TOOL_URL = 'https://voter-info-tool.appspot.com/';
 
 
 /**
@@ -73,6 +73,19 @@ vit.Loader.prototype.load = function(url, config, el) {
   if (!el || !(el instanceof Element)) {
     throw new Error('Invalid container element or none specified.');
   }
+
+  if (!goog.string.endsWith(url, '/')) {
+    url = url + '/';
+  }
+
+  url += 'vit';
+
+  config['locale'] = config['locale'] || 'en';
+
+  url += '_' + config['locale'];
+
+  url += config['suppress_header'] ? '_noheader' : '';
+  url += '.html';
 
   var div = goog.dom.createElement('div');
   div.style.border = 'none';

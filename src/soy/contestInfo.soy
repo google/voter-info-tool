@@ -24,7 +24,7 @@
 
 /**
  * Draw contest info.
- * @param contests Hours when polls are open.
+ * @param contests The contests.
  * @param addressWasEntered Whether or not the user entered an address.
  */
 {template .contestInfo autoescape="contextual"}
@@ -38,7 +38,7 @@
       {if $contests and length($contests) > 0}
         <span class="{css contest-order-disclaimer}">
           {msg desc="Explanation displayed at the top of ballot information table."}
-            not in official ballot order, and may be incomplete
+            may not include all races
           {/msg}
         </span>
       {/if}
@@ -94,6 +94,7 @@
 /**
  * Draw contestants.
  * @param candidates List of contestants in a race.
+ * @param? region Region abbreviation.
  */
 {template .candidates autoescape="contextual"}
   {if $candidates and length($candidates) > 0}
@@ -102,16 +103,16 @@
         <div class="{css candidate-party} {css candidate-info}">{$candidate.party}</div>
         <div class="{css candidate-info}">
           <a class="{css candidate-btn}"
-              href="https://www.google.com/search?q={$candidate.name}"
+              href="https://www.google.com/search?q={$candidate.name}
+                  {if $region}{sp}{$region}{/if}"
               target="_blank">
             {$candidate.name}
           </a>
-          {if $candidate.candidateUrl or $candidate.phone or $candidate.email}
+          {if $candidate.candidateUrl or $candidate.email}
             <a href="javascript:void(0)"
                 class="{css channel-btn} {css candidate-contact} {css icon-sprite}"
                 {if $candidate.name}data-name="{$candidate.name}"{/if}
                 {if $candidate.candidateUrl}data-url="{$candidate.candidateUrl}"{/if}
-                {if $candidate.phone}data-phone="{$candidate.phone}"{/if}
                 {if $candidate.email}data-email="{$candidate.email}"{/if}
                 {if $candidate.photoUrl}data-image="{$candidate.photoUrl}"{/if}></a>
           {/if}

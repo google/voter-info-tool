@@ -217,18 +217,9 @@
         </span>
       {/if}
     </span>
-    <span class="{css hours} {css line}">
-      {if $pollingLocation.startDate and $pollingLocation.endDate}
-        {msg desc="description of the times a polling location is open, including dates"}
-          Open {$pollingLocation.pollingHours},{sp}
-          from {$pollingLocation.startDate} to {$pollingLocation.endDate}
-        {/msg}
-      {else}
-        {msg desc="description of the times a polling location is open"}
-          Open {$pollingLocation.pollingHours}
-        {/msg}
-      {/if}
-    </span>
+    {call .pollingHours}
+      {param pollingLocation: $pollingLocation /}
+    {/call}
     {if $pollingLocation.notes}
       <span class="{css notes} {css line}">{$pollingLocation.notes}</span>
     {/if}
@@ -265,18 +256,9 @@
         </span>
       {/if}
     </span>
-    <span class="{css hours} {css line}">
-      {if $pollingLocation.startDate and $pollingLocation.endDate}
-        {msg desc="description of the times a polling location is open, including dates"}
-          Open {$pollingLocation.pollingHours},{sp}
-          from {$pollingLocation.startDate} to {$pollingLocation.endDate}
-        {/msg}
-      {else}
-        {msg desc="description of the times a polling location is open"}
-          Open {$pollingLocation.pollingHours}
-        {/msg}
-      {/if}
-    </span>
+    {call .pollingHours}
+      {param pollingLocation: $pollingLocation /}
+    {/call}
     {if $pollingLocation.notes}
       <span class="{css notes} {css line}">{$pollingLocation.notes}</span>
     {/if}
@@ -344,4 +326,25 @@
   ,{sp}
   {$address.city},{sp}
   {$address.state}
+{/template}
+
+/**
+ * Render polling hours.
+ * @param pollingLocation Polling location information.
+ */
+{template .pollingHours autoescape="contextual"}
+  {if $pollingLocation.pollingHours}
+    <span class="{css hours} {css line}">
+      {if $pollingLocation.startDate and $pollingLocation.endDate}
+        {msg desc="description of the times a polling location is open, including dates"}
+          Open {$pollingLocation.pollingHours},{sp}
+          from {$pollingLocation.startDate} to {$pollingLocation.endDate}
+        {/msg}
+      {else}
+        {msg desc="description of the times a polling location is open"}
+          Open {$pollingLocation.pollingHours}
+        {/msg}
+      {/if}
+    </span>
+  {/if}
 {/template}

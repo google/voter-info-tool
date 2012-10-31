@@ -96,7 +96,7 @@ vit.component.ContestInfo.prototype.createDom = function() {
   this.region_ = civicInfo && civicInfo.normalizedInput &&
       civicInfo.normalizedInput.state || null;
   this.contests_ = /** @type {Array.<vit.api.CivicInfo.Contest>} */
-      civicInfo && civicInfo.contests || null;
+      (civicInfo && civicInfo.contests || null);
   var data = this.formatData_(civicInfo);
   var element = goog.soy.renderAsElement(vit.templates.contestInfo, data);
   this.setElementInternal(element);
@@ -170,7 +170,10 @@ vit.component.ContestInfo.prototype.handleTabSelection_ = function(e) {
   goog.dom.removeChildren(this.tabContentElement_);
   // TODO(jmwaura): Surely there's a better way to do this.
   var tabIndex = this.tabBar_.getSelectedTabIndex();
-  var data = {candidates: this.contests_[tabIndex].candidates};
+  var data = {candidates: this.contests_[tabIndex].candidates,
+      region: (this.contests_[tabIndex].level == 'federal') ?
+          null : this.region_
+  };
   goog.dom.appendChild(this.tabContentElement_,
       goog.soy.renderAsElement(vit.templates.candidates, data));
   var hoverCardTargets = goog.dom.getElementsByClass(

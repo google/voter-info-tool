@@ -211,7 +211,7 @@ vit.component.LocationMap.prototype.geocodeLocation = function(location,
  * Geocodes an address.
  * @param {vit.api.CivicInfo.Address} address Location to geocode.
  * @param {function(vit.api.CivicInfo.Address)} callback Function to
- *   call when geocoding completes.
+ *   call when geocoding completes successfully. It won't be called otherwise.
  */
 vit.component.LocationMap.prototype.geocodeAddress = function(address,
   callback) {
@@ -225,16 +225,73 @@ vit.component.LocationMap.prototype.geocodeAddress = function(address,
     return;
   }
   var request = {
-    address: vit.api.CivicInfo.addressToString(address)
+    address: vit.api.CivicInfo.addressToString(address, true)
   };
   this.getGeocoder_().geocode(request, goog.bind(function(resp, status) {
     if (status != google.maps.GeocoderStatus.OK) {
       return;
     }
-    address.location = resp[0].geometry.location;
+    var bestResp = null;
+    for (var i = 0; i < resp.length; i++)
+    {
+      if (this.geocodeIsSane(resp[i])) {
+        bestResp = resp[i];
+        break;
+      }
+    }
+    if (!bestResp) {
+      // No sane geocodes.
+      return;
+    }
+    address.location = bestResp.geometry.location;
     callback(address);
   }, this));
 };
+
+
+/**
+ * Checks that a geocode result is sane.
+ * @param {google.maps.GeocoderResult} geocode The result to check.
+ * @return {boolean} Whether or not the geocode is sane.
+ */
+vit.component.LocationMap.prototype.geocodeIsSane = function(geocode) {
+  if (!(geocode && geocode.geometry && geocode.address_components)) {
+    return false;
+  }
+  var type = geocode.geometry.location_type;
+  if (type != google.maps.GeocoderLocationType.ROOFTOP &&
+      type != google.maps.GeocoderLocationType.RANGE_INTERPOLATED) {
+    return false;
+  }
+
+  // Find the state component.
+  var geocodeState;
+  for (var i = 0; i < geocode.address_components.length; i++) {
+    for (var j = 0; j < geocode.address_components[i].types.length; j++) {
+      // TODO(jmwaura): Define address component types in constants somewhere.
+      if (geocode.address_components[i].types[j] ==
+            "administrative_area_level_1") {
+        geocodeState = geocode.address_components[i].short_name;
+        break;
+      }
+    }
+    if (geocodeState) {
+      break;
+    }
+  }
+
+  if (!geocodeState) {
+    return false;
+  }
+
+  if (this.origin_ && this.origin_.state) {
+    if (this.origin_.state.toLowerCase() != geocodeState.toLowerCase()) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 
 /**

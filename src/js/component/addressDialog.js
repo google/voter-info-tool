@@ -69,7 +69,7 @@ vit.component.AddressDialog = function(context, opt_domHelper) {
    * @type {Element}
    * @private
    */
-  this.autocompleteBox_;
+  this.hintBox_;
 
   /**
    * Suggestion listener.
@@ -102,6 +102,10 @@ vit.component.AddressDialog = function(context, opt_domHelper) {
 goog.inherits(vit.component.AddressDialog, vit.component.Component);
 
 
+vit.component.AddressDialog.ADDRESS_EXAMPLE = "1600 Pennsylvania Ave NW, " +
+    "Washington DC";
+
+
 /** @override */
 vit.component.AddressDialog.prototype.createDom = function() {
   var element = goog.soy.renderAsElement(vit.templates.addressDialog);
@@ -122,8 +126,7 @@ vit.component.AddressDialog.prototype.createDom = function() {
       this.submit_);
 
   this.addressBox_ = this.getElementByClass(goog.getCssName('address-input'));
-  this.autocompleteBox_ =
-      this.getElementByClass(goog.getCssName('address-autocomplete'));
+  this.hintBox_ = this.getElementByClass(goog.getCssName('address-hint'));
   this.keyHandler_ = this.keyHandler_ || new goog.events.KeyHandler();
   this.registerDisposable(this.keyHandler_);
 };
@@ -134,14 +137,22 @@ vit.component.AddressDialog.prototype.createDom = function() {
  * @private
  */
 vit.component.AddressDialog.prototype.submit_ = function() {
-  this.context_.set(vit.context.ADDRESS,
-      goog.dom.forms.getValue(this.addressBox_));
+  var fieldValue = goog.dom.forms.getValue(this.addressBox_);
+  var value = goog.string.trim(/** @type {string} */(fieldValue));
+  if (!!value) {
+    goog.dom.classes.enable(
+        this.getElement(), goog.getCssName('loading'), true);
+    this.context_.set(vit.context.ADDRESS,
+        goog.dom.forms.getValue(this.addressBox_));
+  }
 };
 
 
 /** @override */
 vit.component.AddressDialog.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
+  goog.dom.forms.setValue(this.hintBox_,
+      vit.component.AddressDialog.ADDRESS_EXAMPLE)
   this.suggestionListener_ = this.context_.subscribe(
       vit.context.ADDRESS_SUGGESTION,
       goog.bind(this.handleSuggestion_, this)
@@ -172,25 +183,25 @@ vit.component.AddressDialog.prototype.enterDocument = function() {
 vit.component.AddressDialog.prototype.handleKeyEvents_ = function(e) {
   var el = /** @type Element */ (e.target);
   var value = goog.dom.forms.getValue(el);
-  var suggestion = goog.dom.forms.getValue(this.autocompleteBox_);
+  var hint = goog.dom.forms.getValue(this.hintBox_);
 
   /**
    * If TAB, RIGHT or ENTER and at the end of the text, complete.
-   * Else if DELETE or BACKSPACE at end of text, remove suggestion.
+   * Else if DELETE or BACKSPACE at end of text, remove hint.
    * If ENTER, always submit (but after completion).
    */
   if ((e.keyCode == goog.events.KeyCodes.TAB ||
       e.keyCode == goog.events.KeyCodes.RIGHT ||
       e.keyCode == goog.events.KeyCodes.ENTER) &&
       goog.dom.selection.getStart(el) >= value.length &&
-      suggestion.lastIndexOf(value, 0) == 0) {
+      hint.lastIndexOf(value, 0) == 0) {
     // TODO(jmwaura): Handle RTL languages.
-    goog.dom.forms.setValue(el, suggestion);
+    goog.dom.forms.setValue(el, hint);
   } else if ((e.keyCode == goog.events.KeyCodes.DELETE ||
     e.keyCode == goog.events.KeyCodes.BACKSPACE) &&
       goog.dom.selection.getStart(el) >= value.length &&
-      suggestion.length > value.length) {
-    goog.dom.forms.setValue(this.autocompleteBox_, '');
+      hint.length > value.length) {
+    goog.dom.forms.setValue(this.hintBox_, '');
     e.preventDefault();
   }
   if (e.keyCode == goog.events.KeyCodes.ENTER) {
@@ -207,6 +218,7 @@ vit.component.AddressDialog.prototype.handleKeyEvents_ = function(e) {
 vit.component.AddressDialog.prototype.handleInput_ = function(e) {
   var el = /** @type Element */ (e.target);
   var value = goog.dom.forms.getValue(el);
+  this.hintBox_.value = '';
   this.context_.set(vit.context.ADDRESS_ENTRY, value);
 };
 
@@ -217,7 +229,7 @@ vit.component.AddressDialog.prototype.handleInput_ = function(e) {
  * @private
  */
 vit.component.AddressDialog.prototype.handleSuggestion_ = function(suggestion) {
-  goog.dom.forms.setValue(this.autocompleteBox_,
+  goog.dom.forms.setValue(this.hintBox_,
       /** @type {string} */ (suggestion) || '');
 };
 

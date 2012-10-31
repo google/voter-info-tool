@@ -21,7 +21,6 @@
  */
 
 .large-map {
-  background-color: #a4bedc;
   height: 100%;
   margin: 0;
   padding: 0;

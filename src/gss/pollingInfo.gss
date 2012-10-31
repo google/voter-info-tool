@@ -133,7 +133,7 @@
 }
 
 .polling-location-compact .name {
-  font-weight: bold;
+  color: DARK_TEXT_COLOR;
 }
 
 .polling-location-compact .hours, .polling-location-compact .notes{
@@ -167,12 +167,13 @@
 }
 
 .polling-location-info-window {
+  color: GREY_TEXT_COLOR;
   font-size: BODY_TEXT_SIZE;
   overflow: hidden;
 }
 
 .polling-location-info-window .name {
-  font-weight: bold;
+  color: DARK_TEXT_COLOR;
 }
 
 .polling-location-info-window .hours, .polling-location-info-window .notes{

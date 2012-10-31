@@ -20,12 +20,13 @@
  * @author jmwaura@google.com (Jesse Mwaura)
  */
 
-@def HEADER_PADDING 4px;
-@def HEADER_SIZE 30px;
-@def LARGE_HEADER_PADDING 8px;
-@def LARGE_HEADER_SIZE 40px;
+@def HEADER_PADDING_TOP 5px;
+@def HEADER_PADDING HEADER_PADDING_TOP 4px 3px;
+@def LARGE_HEADER_PADDING_TOP 11px;
+@def LARGE_HEADER_PADDING LARGE_HEADER_PADDING_TOP 8px 4px;
 
 .header {
+  background-color: DARKISH_BACKGROUND_COLOR;
   border-bottom: STANDARD_RULE;
   overflow: hidden;
 }
@@ -40,18 +41,44 @@
 }
 
 .header-logo {
+  background-position: LOGOS_GOOGLE_LOGO_33_BG_POS;
   display: block;
   float: left;
-  height: HEADER_SIZE;
-  width: HEADER_SIZE;
-  background-position: LOGOS_GOOGLE_POLITICS_30_BG_POS;
+  height: LOGOS_GOOGLE_LOGO_33_HEIGHT;
+  width: LOGOS_GOOGLE_LOGO_33_WIDTH;
 }
 
 .header-text {
   display: block;
-  font-size: 20px;
-  line-height: HEADER_SIZE;
-  margin-left: add(10px, HEADER_SIZE);
+  float: left;
+  font-family: "Open Sans", arial, sans-serif;
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1.52;
+  margin: -2px 0 0;
+  text-shadow: 0 1px 1px #fff;
+}
+
+.header-text:before {
+  border: solid #c4c6ca;
+  border-width: 0 0 0 1px;
+  content: "";
+  float: left;
+  height: 27px;
+  margin: 3px 10px;
+}
+
+.header-text a {
+  color: #91959c;
+  text-decoration: none;
+}
+
+.header-text a:hover {
+  text-decoration: none;
+}
+
+.header-text a:visited {
+  color: #91959c;
 }
 
 .header-tools {
@@ -80,21 +107,27 @@
   }
 
   .header-logo {
-    height: LARGE_HEADER_SIZE;
-    width: LARGE_HEADER_SIZE;
-    background-position: LOGOS_GOOGLE_POLITICS_40_BG_POS;
+    background-position: LOGOS_GOOGLE_LOGO_41_BG_POS;
+    display: block;
+    float: left;
+    height: LOGOS_GOOGLE_LOGO_41_HEIGHT;
+    width: LOGOS_GOOGLE_LOGO_41_WIDTH;
   }
 
   .header-text {
-    display: block;
-    font-size: 25px;
-    line-height: LARGE_HEADER_SIZE;
-    margin-left: add(10px, LARGE_HEADER_SIZE);
+    color: #91959c;
+    font-size: 27px;
+    margin: -4px 0 0;
+  }
+
+  .header-text:before {
+    height: 33px;
+    margin: 4px 12px;
   }
 
   .header-tools {
     float: right;
-    margin-top: sub(0, add(LARGE_HEADER_SIZE, LARGE_HEADER_PADDING));
+    margin-top: sub(0, add(LOGOS_GOOGLE_LOGO_41_HEIGHT, LARGE_HEADER_PADDING_TOP));
   }
 
   .header-tool-set {

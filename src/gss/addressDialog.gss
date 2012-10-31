@@ -21,16 +21,51 @@
  */
 
 .text-autocomplete {
-  background: transparent !important;
+  background-position: initial initial;
+  background-repeat: initial initial;
+  @mixin border_radius(1px);
+  @mixin box_sizing(border-box);
+  font-size: 16px;
+  height: TEXTBOX_HEIGHT;
+  left: 0px;
+  line-height: sub(TEXTBOX_HEIGHT, 2px);
+  margin: 0;
+  outline: none;
+  padding: 0;
+  padding-left: 8px;
   position: absolute;
+  top: 0px;
   width: 100%;
-  z-index: 5;
 }
 
-.text-autocomplete-ghost {
-  color: #bdbdbd !important;
-  position: absolute;
-  width: 100%;
+.address-input:hover {
+  border: 1px solid #bdbdbd;
+  @mixin box_shadow(inset 0px 1px 2px rgba(0, 0, 0, 0.2));
+  outline: none;
+}
+
+.address-input:focus {
+  border: 1px solid #4d90fe;
+  @mixin box_shadow(inset 0px 1px 2px rgba(0, 0, 0, 0.2));
+  outline: none;
+}
+
+.text-measurement {
+  visibility: hidden;
+  white-space: pre;
+  z-index: 6;
+}
+
+.address-input {
+  border: 1px solid #d9d9d9;
+  border-top: 1px solid #bdbdbd;
+  color: #333;
+  z-index: 6;
+}
+
+.address-hint {
+  border: 1px solid #d9d9d9;
+  color: #bdbdbd;
   z-index: 1;
 }
 
@@ -42,6 +77,14 @@
 .address-form {
   margin-bottom: 12px;
   overflow: auto;
+}
+
+.address-prompt-wrapper {
+  height: 16px;
+  line-height: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .text-autocomplete-wrapper {
@@ -71,4 +114,23 @@
   height: ICONS_SEARCH_HEIGHT;
   width: ICONS_SEARCH_WIDTH;
   margin: 0 18px;
+}
+
+.address-loading-indicator {
+  background: LOADING_ANIMATION_DATAURI right no-repeat;
+  float: right;
+  padding-right: 26px;
+}
+
+.address-loading-indicator {
+  color: DARK_TEXT_COLOR;
+  display: none;
+}
+
+.loading .address-prompt-wrapper {
+  color: #bdbdbd;
+}
+
+.loading .address-loading-indicator {
+  display: block;
 }

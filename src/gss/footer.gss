@@ -58,7 +58,6 @@
   text-align: center;
 }
 
-
 .footer .privacy-terms {
   float: right;
   padding-left: 1em;

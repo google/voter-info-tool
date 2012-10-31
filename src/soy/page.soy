@@ -26,6 +26,7 @@
  * Renders the html page that contains the voter information tool.
  * @param cssPath Relative path to style sheets.
  * @param scriptSource Path to VIT js.
+ * @param? suppressHeader Whether or not to prevent rendering of the header.
  */
 {template .page autoescape="contextual"}
 <!doctype html>
@@ -34,6 +35,7 @@
   <title>
     {msg desc="Product name for the Voter Information Tool"}Voter Information Tool{/msg}
   </title>
+
   <link rel="stylesheet" href="{$cssPath}" type="text/css">
 
   /**
@@ -42,7 +44,9 @@
   <script type="text/javascript" src="{$scriptSource}"></script>
 </head>
 <body onLoad="vit.init();">
-  {call .base /}
+  {call .base}
+    {param suppressHeader: $suppressHeader ? true : false /}
+  {/call}
 </body>
 </html>
 {/template}

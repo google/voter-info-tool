@@ -192,23 +192,24 @@ $closure_lib_dir/closure/bin/calcdeps.py -i $SRC_ROOT/$JS_SRC_PATH/vit.js -p $SR
   -f "--warning_level=VERBOSE" \
   -f "--externs=$SRC_ROOT/$EXTERNS_PATH/externs.js" \
   -f "--define=vit.api.API_KEY='$google_api_key'" \
+  -f "--define=vit.analytics.Analytics.KEY='$analytics_api_key'" \
   -f "--create_source_map=$BUILD_ROOT/$JS_BUILD_PATH/vit.js.map" \
   -f "--source_map_format=V3" \
   --output_file=$BUILD_ROOT/$JS_BUILD_PATH/vit.js 2>&1 | grep -E --color "^$SRC_ROOT/$JS_SRC_PATH.+|\$"
 
-echo "Appending source map..."
-echo "//@ sourceMappingURL=./vit.js.map" >> $BUILD_ROOT/$JS_BUILD_PATH/vit.js
+# echo "Appending source map..."
+# echo "//@ sourceMappingURL=./vit.js.map" >> $BUILD_ROOT/$JS_BUILD_PATH/vit.js
 
 # Generate HTML.
-echo "Generating vit.html from SOY files..."
+echo "Generating vit_en.html from SOY files..."
 relative_closure_lib_path="$(relative_path $BUILD_ROOT $closure_lib_dir)"
 java -classpath $BUILD_ROOT/$TOOL_BUILD_PATH:$soy_compiler_jar CompileSoy --soyFiles=$SRC_ROOT/$SOY_SRC_PATH --template=vit.templates.page \
   --outputType=html \
   -- \
   --cssPath=$GSS_BUILD_PATH/$GSS_OUTPUT_FILENAME \
   --scriptSource="js/vit.js" \
-  --apiKey=$google_api_key > $BUILD_ROOT/vit.html
-
+  --apiKey=$google_api_key > $BUILD_ROOT/vit_en.html
+cp $BUILD_ROOT/vit_en.html $BUILD_ROOT/vit_es.html
 
 # Compile JS. Highlight any warnings that are from VIT source.
 echo "Compiling loader JS..."
@@ -234,3 +235,9 @@ java -classpath $BUILD_ROOT/$TOOL_BUILD_PATH:$soy_compiler_jar CompileSoy --soyF
   -- \
   --cssPath=$GSS_BUILD_PATH/$GSS_OUTPUT_FILENAME \
   --loaderSource="js/loader.js" > $BUILD_ROOT/index.html
+
+# Copy pin.ico to favicon.ico
+echo "Copy pin.ico to favicon.ico"
+cp $SRC_ROOT/images/pin.ico $BUILD_ROOT/favicon.ico
+
+echo "Done!"
